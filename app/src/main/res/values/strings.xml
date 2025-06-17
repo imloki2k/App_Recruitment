@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">IRR-Project</string>
+    <string-array name="fields_array">
+        <item>All</item>
+        <item>IT</item>
+        <item>Marketing</item>
+        <item>Design</item>
+        <item>Business</item>
+    </string-array>
+
+</resources>
