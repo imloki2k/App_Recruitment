@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editTextTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Title"
+        android:minHeight="48dp"/>
+
+    <EditText
+        android:id="@+id/editTextLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Location"
+        android:minHeight="48dp"/>
+
+    <EditText
+        android:id="@+id/editTextDuration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Duration"
+        android:minHeight="48dp"/>
+
+    <EditText
+        android:id="@+id/editTextField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Field"
+        android:minHeight="48dp"/>
+
+    <EditText
+        android:id="@+id/editTextDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Description"
+        android:minHeight="48dp"/>
+
+    <EditText
+        android:id="@+id/editTextRequirements"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Requirements"
+        android:minHeight="48dp"/>
+
+    <EditText
+        android:id="@+id/editTextStipend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Stipend"
+        android:minHeight="48dp"/>
+
+    <EditText
+        android:id="@+id/editTextDeadline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Deadline"
+        android:minHeight="48dp"/>
+
+    <Button
+        android:id="@+id/buttonSaveInternship"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save Internship"
+        android:layout_gravity="center" />
+
+</LinearLayout>
