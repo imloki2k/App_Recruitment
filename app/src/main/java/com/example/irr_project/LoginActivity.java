@@ -2,57 +2,78 @@ package com.example.irr_project;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
+import com.example.irr_project.database.DatabaseHelper;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText emailEditText, passwordEditText;
-    private RadioGroup roleRadioGroup;
-    private Button loginButton;
-    private TextView signUpTextView;
+    private EditText editTextEmail, editTextPassword;
+    private Button buttonLogin;
+    private DatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Ánh xạ view từ XML
-        emailEditText = findViewById(R.id.emailEditText);
-        passwordEditText = findViewById(R.id.passwordEditText);
-        roleRadioGroup = findViewById(R.id.roleRadioGroup);
-        loginButton = findViewById(R.id.loginButton);
-        signUpTextView = findViewById(R.id.goToSignUp);
+        // Initialize UI components
+        editTextEmail = findViewById(R.id.editTextEmail);
+        editTextPassword = findViewById(R.id.editTextPassword);
+        buttonLogin = findViewById(R.id.buttonLogin);
 
-        // Xử lý nút login
-        loginButton.setOnClickListener(v -> {
-            String email = emailEditText.getText().toString();
-            String password = passwordEditText.getText().toString();
+        // Initialize DatabaseHelper
+        dbHelper = new DatabaseHelper(this);
+        dbHelper.getWritableDatabase(); // Ensure database is created
 
-            int selectedId = roleRadioGroup.getCheckedRadioButtonId();
-            if (selectedId == -1) {
-                Toast.makeText(this, "Please select a role", Toast.LENGTH_SHORT).show();
+        // Set up login button click listener
+        buttonLogin.setOnClickListener(v -> {
+            String email = editTextEmail.getText().toString().trim();
+            String password = editTextPassword.getText().toString().trim();
+
+            // Validate inputs
+            if (!validateInputs(email, password)) {
                 return;
             }
 
-            RadioButton selectedRole = findViewById(selectedId);
-            String role = selectedRole.getText().toString();
-
-            // Giả lập đăng nhập thành công
-            Toast.makeText(this, "Logged in as " + role, Toast.LENGTH_SHORT).show();
+            // Check credentials and get role from database
+            String role = dbHelper.getUserRole(email, password);
+            if (role != null) {
+                Toast.makeText(this, "Login successful as " + role, Toast.LENGTH_SHORT).show();
+                // Navigate to appropriate dashboard
+                Intent intent;
+                if (role.equals("student")) {
+                    intent = new Intent(LoginActivity.this, InternshipListingsActivity.class);
+                } else {
+                    intent = new Intent(LoginActivity.this, RecruiterDashboardActivity.class);
+                }
+                startActivity(intent);
+                finish();
+            } else {
+                Toast.makeText(this, "Invalid email or password", Toast.LENGTH_SHORT).show();
+            }
         });
+    }
 
-        // Chuyển sang màn đăng ký
-        signUpTextView.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-            startActivity(intent);
-        });
+    private boolean validateInputs(String email, String password) {
+        if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            editTextEmail.setError("Enter a valid email");
+            return false;
+        }
+        if (password.length() < 6) {
+            editTextPassword.setError("Password must be at least 6 characters");
+            return false;
+        }
+        return true;
+    }
+
+    public void goToRegister(View view) {
+        Intent intent = new Intent(this, RegisterActivity.class);
+        startActivity(intent);
     }
 }
