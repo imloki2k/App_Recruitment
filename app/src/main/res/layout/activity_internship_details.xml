@@ -7,6 +7,7 @@
     android:padding="16dp">
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardViewDetails"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:cardCornerRadius="8dp"
@@ -71,10 +72,23 @@
         android:id="@+id/editTextResume"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Enter your resume"
+        android:minHeight="48dp"
+        android:hint="Enter your resume or select a file"
         android:layout_marginTop="24dp"
-        android:padding="8dp"
-        app:layout_constraintTop_toBottomOf="@id/textViewDeadline"
+        android:padding="12dp"
+        app:layout_constraintTop_toBottomOf="@id/cardViewDetails"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/buttonUploadFile"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Upload Resume File"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="#6200EE"
+        android:onClick="onPickFile"
+        app:layout_constraintTop_toBottomOf="@id/editTextResume"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -85,7 +99,7 @@
         android:text="APPLY"
         android:layout_marginTop="16dp"
         android:backgroundTint="#6200EE"
-        app:layout_constraintTop_toBottomOf="@id/editTextResume"
+        app:layout_constraintTop_toBottomOf="@id/buttonUploadFile"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

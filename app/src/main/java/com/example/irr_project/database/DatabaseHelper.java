@@ -12,66 +12,69 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = "internship_app.db";
-    private static final int DATABASE_VERSION = 1;
+    public static final String DATABASE_NAME = "internship_app.db";
+    public static final int DATABASE_VERSION = 1;
 
     // Table names
-    private static final String TABLE_USERS = "users";
-    private static final String TABLE_INTERNSHIPS = "internships";
-    private static final String TABLE_APPLICATIONS = "applications";
-    private static final String TABLE_INTERVIEWS = "interviews";
-    private static final String TABLE_MESSAGES = "messages";
-    private static final String TABLE_NOTIFICATIONS = "notifications";
+    public static final String TABLE_USERS = "users";
+    public static final String TABLE_INTERNSHIPS = "internships";
+    public static final String TABLE_APPLICATIONS = "applications";
+    public static final String TABLE_INTERVIEWS = "interviews";
+    public static final String TABLE_MESSAGES = "messages";
+    public static final String TABLE_NOTIFICATIONS = "notifications";
 
     // Users table columns
-    private static final String COL_USER_ID = "user_id";
-    private static final String COL_EMAIL = "email";
-    private static final String COL_PASSWORD = "password"; // In production, hash passwords
-    private static final String COL_ROLE = "role"; // "student" or "recruiter"
-    private static final String COL_NAME = "name";
-    private static final String COL_UNIVERSITY = "university"; // Nullable for recruiters
-    private static final String COL_COMPANY = "company"; // Nullable for students
+    public static final String COL_USER_ID = "user_id";
+    public static final String COL_EMAIL = "email";
+    public static final String COL_PASSWORD = "password";
+    public static final String COL_ROLE = "role";
+    public static final String COL_NAME = "name";
+    public static final String COL_UNIVERSITY = "university";
+    public static final String COL_COMPANY = "company";
 
     // Internships table columns
-    private static final String COL_INTERNSHIP_ID = "internship_id";
-    private static final String COL_TITLE = "title";
-    private static final String COL_COMPANY_ID = "company_id"; // References user_id of recruiter
-    private static final String COL_LOCATION = "location";
-    private static final String COL_DURATION = "duration";
-    private static final String COL_FIELD = "field"; // e.g., IT, Marketing
-    private static final String COL_DESCRIPTION = "description";
-    private static final String COL_REQUIREMENTS = "requirements";
-    private static final String COL_STIPEND = "stipend";
-    private static final String COL_DEADLINE = "deadline";
-    private static final String COL_DATE_POSTED = "date_posted";
+    public static final String COL_INTERNSHIP_ID = "internship_id";
+    public static final String COL_TITLE = "title";
+    public static final String COL_COMPANY_ID = "company_id";
+    public static final String COL_LOCATION = "location";
+    public static final String COL_DURATION = "duration";
+    public static final String COL_FIELD = "field";
+    public static final String COL_DESCRIPTION = "description";
+    public static final String COL_REQUIREMENTS = "requirements";
+    public static final String COL_STIPEND = "stipend";
+    public static final String COL_DEADLINE = "deadline";
+    public static final String COL_DATE_POSTED = "date_posted";
 
     // Applications table columns
-    private static final String COL_APPLICATION_ID = "application_id";
-    private static final String COL_STUDENT_ID = "student_id"; // References user_id
-    private static final String COL_RESUME = "resume"; // Text or file path
-    private static final String COL_STATUS = "status"; // e.g., Pending, Accepted, Rejected
+    public static final String COL_APPLICATION_ID = "application_id";
+    public static final String COL_STUDENT_ID = "student_id";
+    public static final String COL_RESUME = "resume";
+    public static final String COL_STATUS = "status";
 
     // Interviews table columns
-    private static final String COL_INTERVIEW_ID = "interview_id";
-    private static final String COL_TIME = "time"; // ISO 8601 string or timestamp
-    private static final String COL_STATUS_INTERVIEW = "status_interview"; // e.g., Proposed, Confirmed, Declined
+    public static final String COL_INTERVIEW_ID = "interview_id";
+    public static final String COL_TIME = "time";
+    public static final String COL_STATUS_INTERVIEW = "status_interview";
 
     // Messages table columns
-    private static final String COL_MESSAGE_ID = "message_id";
-    private static final String COL_SENDER_ID = "sender_id"; // References user_id
-    private static final String COL_RECEIVER_ID = "receiver_id"; // References user_id
-    private static final String COL_CONTENT = "content";
-    private static final String COL_TIMESTAMP = "timestamp";
+    public static final String COL_MESSAGE_ID = "message_id";
+    public static final String COL_SENDER_ID = "sender_id";
+    public static final String COL_RECEIVER_ID = "receiver_id";
+    public static final String COL_CONTENT = "content";
+    public static final String COL_TIMESTAMP = "timestamp";
 
     // Notifications table columns
-    private static final String COL_NOTIFICATION_ID = "notification_id";
-    private static final String COL_USER_ID_NOTIF = "user_id_notif"; // References user_id
-    private static final String COL_MESSAGE = "message";
-    private static final String COL_TYPE = "type"; // e.g., ApplicationUpdate, InterviewInvite
-    private static final String COL_READ = "read"; // 0 for unread, 1 for read
+    public static final String COL_NOTIFICATION_ID = "notification_id";
+    public static final String COL_USER_ID_NOTIF = "user_id_notif";
+    public static final String COL_MESSAGE = "message";
+    public static final String COL_TYPE = "type";
+    public static final String COL_READ = "read";
+
+    private Context context;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
     @Override
@@ -108,7 +111,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_APPLICATION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_STUDENT_ID + " INTEGER NOT NULL, " +
                 COL_INTERNSHIP_ID + " INTEGER NOT NULL, " +
-                COL_RESUME + " TEXT, " +
+                COL_RESUME + " TEXT, " + // Lưu Uri hoặc đường dẫn file
                 COL_STATUS + " TEXT NOT NULL CHECK(" + COL_STATUS + " IN ('Pending', 'Accepted', 'Rejected', 'Under Review')), " +
                 "FOREIGN KEY(" + COL_STUDENT_ID + ") REFERENCES " + TABLE_USERS + "(" + COL_USER_ID + "), " +
                 "FOREIGN KEY(" + COL_INTERNSHIP_ID + ") REFERENCES " + TABLE_INTERNSHIPS + "(" + COL_INTERNSHIP_ID + "));";
@@ -149,52 +152,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_NOTIFICATIONS_TABLE);
 
         // Insert sample data
-        // Users: 2 students, 2 recruiters
-        db.execSQL("INSERT INTO users (email, password, role, name, university) VALUES " +
-                "('student1@example.com', 'pass123', 'student', 'Nguyen Van A', 'Hanoi University');");
-        db.execSQL("INSERT INTO users (email, password, role, name, university) VALUES " +
-                "('student2@example.com', 'pass456', 'student', 'Tran Thi B', 'Saigon University');");
-        db.execSQL("INSERT INTO users (email, password, role, name, company) VALUES " +
-                "('recruiter1@example.com', 'pass789', 'recruiter', 'FPT Software', 'FPT Corporation');");
-        db.execSQL("INSERT INTO users (email, password, role, name, company) VALUES " +
-                "('recruiter2@example.com', 'pass012', 'recruiter', 'VNG Corp', 'VNG Corporation');");
-
-        // Internships: 3 internships by recruiters
-        db.execSQL("INSERT INTO internships (title, company_id, location, duration, field, description, requirements, stipend, deadline, date_posted) VALUES " +
-                "('Android Developer Intern', 3, 'Hanoi', '3 months', 'IT', 'Develop Android applications', 'Basic Java/Kotlin knowledge', '5000000 VND', '2025-08-01', '2025-07-01');");
-        db.execSQL("INSERT INTO internships (title, company_id, location, duration, field, description, requirements, stipend, deadline, date_posted) VALUES " +
-                "('Marketing Intern', 3, 'Ho Chi Minh City', '6 months', 'Marketing', 'Assist in marketing campaigns', 'Good communication skills', '3000000 VND', '2025-07-15', '2025-07-02');");
-        db.execSQL("INSERT INTO internships (title, company_id, location, duration, field, description, requirements, stipend, deadline, date_posted) VALUES " +
-                "('Web Developer Intern', 4, 'Da Nang', '4 months', 'IT', 'Build web applications', 'HTML, CSS, JavaScript', '4000000 VND', '2025-07-20', '2025-07-03');");
-
-        // Applications: 2 applications by students
-        db.execSQL("INSERT INTO applications (student_id, internship_id, resume, status) VALUES " +
-                "(1, 1, 'Resume: Experienced in Java programming', 'Pending');");
-        db.execSQL("INSERT INTO applications (student_id, internship_id, resume, status) VALUES " +
-                "(2, 2, 'Resume: Skilled in digital marketing', 'Under Review');");
-
-        // Interviews: 1 interview scheduled
-        db.execSQL("INSERT INTO interviews (application_id, student_id, company_id, time, status_interview) VALUES " +
-                "(1, 1, 3, '2025-07-10T10:00:00', 'Proposed');");
-
-        // Messages: Sample chat between student and recruiter
-        db.execSQL("INSERT INTO messages (sender_id, receiver_id, content, timestamp) VALUES " +
-                "(1, 3, 'Hello, I’m interested in the Android Intern position.', '2025-07-07T10:00:00');");
-        db.execSQL("INSERT INTO messages (sender_id, receiver_id, content, timestamp) VALUES " +
-                "(3, 1, 'Great! Please provide more details about your experience.', '2025-07-07T10:05:00');");
-
-        // Notifications: Sample notifications
-        db.execSQL("INSERT INTO notifications (user_id_notif, message, type, read) VALUES " +
-                "(1, 'Your application for Android Developer Intern is pending.', 'ApplicationUpdate', 0);");
-        db.execSQL("INSERT INTO notifications (user_id_notif, message, type, read) VALUES " +
-                "(1, 'Interview scheduled for Android Developer Intern on 2025-07-10.', 'InterviewInvite', 0);");
-        db.execSQL("INSERT INTO notifications (user_id_notif, message, type, read) VALUES " +
-                "(3, 'New application received for Android Developer Intern.', 'ApplicationUpdate', 0);");
+        db.execSQL("INSERT INTO users (email, password, role, name, university) VALUES ('student1@example.com', 'pass123', 'student', 'Nguyen Van A', 'Hanoi University');");
+        db.execSQL("INSERT INTO users (email, password, role, name, company) VALUES ('recruiter1@example.com', 'pass789', 'recruiter', 'FPT Software', 'FPT Corporation');");
+        db.execSQL("INSERT INTO internships (title, company_id, location, duration, field, description, requirements, stipend, deadline, date_posted) VALUES ('Android Developer Intern', 2, 'Hanoi', '3 months', 'IT', 'Develop Android apps', 'Java/Kotlin', '5000000 VND', '2025-08-01', '2025-07-01');");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop all tables if upgrading
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTIFICATIONS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MESSAGES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_INTERVIEWS);
@@ -204,35 +168,57 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    // Method to manually insert data for testing
-    public void insertSampleData(SQLiteDatabase db) {
-        // Same insert statements as in onCreate
-        db.execSQL("INSERT INTO users (email, password, role, name, university) VALUES " +
-                "('student3@example.com', 'pass345', 'student', 'Le Van C', 'Da Nang University');");
-        db.execSQL("INSERT INTO internships (title, company_id, location, duration, field, description, requirements, stipend, deadline, date_posted) VALUES " +
-                "('Data Analyst Intern', 4, 'Hanoi', '3 months', 'Data Science', 'Analyze data sets', 'Basic Python knowledge', '4500000 VND', '2025-08-01', '2025-07-07');");
-        db.execSQL("INSERT INTO applications (student_id, internship_id, resume, status) VALUES " +
-                "(3, 4, 'Resume: Proficient in Python and SQL', 'Pending');");
-        db.execSQL("INSERT INTO messages (sender_id, receiver_id, content, timestamp) VALUES " +
-                "(3, 4, 'I’m interested in the Data Analyst Intern role.', '2025-07-07T12:00:00');");
-        db.execSQL("INSERT INTO notifications (user_id_notif, message, type, read) VALUES " +
-                "(3, 'Your application for Data Analyst Intern is pending.', 'ApplicationUpdate', 0);");
+    public String getApplicationStatus(int userId, int internshipId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COL_STATUS};
+        String selection = COL_STUDENT_ID + "=? AND " + COL_INTERNSHIP_ID + "=?";
+        String[] selectionArgs = {String.valueOf(userId), String.valueOf(internshipId)};
+        Cursor cursor = db.query(TABLE_APPLICATIONS, columns, selection, selectionArgs, null, null, null);
+        String status = null;
+        if (cursor.moveToFirst()) {
+            status = cursor.getString(cursor.getColumnIndexOrThrow(COL_STATUS));
+        }
+        cursor.close();
+        return status;
     }
 
-    // Method to check user credentials and get role
+    public boolean addApplication(int studentId, int internshipId, String resumeUri, String status) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_STUDENT_ID, studentId);
+        values.put(COL_INTERNSHIP_ID, internshipId);
+        values.put(COL_RESUME, resumeUri); // Lưu Uri hoặc đường dẫn file
+        values.put(COL_STATUS, status);
+        long result = db.insert(TABLE_APPLICATIONS, null, values);
+        return result != -1;
+    }
+
+    public String getResumeUri(int studentId, int internshipId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COL_RESUME};
+        String selection = COL_STUDENT_ID + "=? AND " + COL_INTERNSHIP_ID + "=?";
+        String[] selectionArgs = {String.valueOf(studentId), String.valueOf(internshipId)};
+        Cursor cursor = db.query(TABLE_APPLICATIONS, columns, selection, selectionArgs, null, null, null);
+        String resumeUri = null;
+        if (cursor.moveToFirst()) {
+            resumeUri = cursor.getString(cursor.getColumnIndexOrThrow(COL_RESUME));
+        }
+        cursor.close();
+        return resumeUri;
+    }
+
+    // Existing methods (getUserRole, getAllInternships, etc.) remain unchanged
     public String getUserRole(String email, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
         String[] columns = {COL_ROLE};
         String selection = COL_EMAIL + "=? AND " + COL_PASSWORD + "=?";
         String[] selectionArgs = {email, password};
-
         Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null);
         String role = null;
         if (cursor.moveToFirst()) {
             role = cursor.getString(cursor.getColumnIndexOrThrow(COL_ROLE));
         }
         cursor.close();
-        db.close();
         return role;
     }
 
@@ -241,7 +227,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         String[] columns = {COL_INTERNSHIP_ID, COL_TITLE, COL_COMPANY_ID, COL_LOCATION, COL_DURATION, COL_FIELD, COL_DATE_POSTED, COL_DESCRIPTION, COL_REQUIREMENTS, COL_STIPEND, COL_DEADLINE};
         Cursor cursor = db.query(TABLE_INTERNSHIPS, columns, null, null, null, null, null);
-
         while (cursor.moveToNext()) {
             int idIndex = cursor.getColumnIndexOrThrow(COL_INTERNSHIP_ID);
             int titleIndex = cursor.getColumnIndexOrThrow(COL_TITLE);
@@ -254,7 +239,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int requirementsIndex = cursor.getColumnIndexOrThrow(COL_REQUIREMENTS);
             int stipendIndex = cursor.getColumnIndexOrThrow(COL_STIPEND);
             int deadlineIndex = cursor.getColumnIndexOrThrow(COL_DEADLINE);
-
             String companyName = getCompanyName(db, cursor.getInt(companyIdIndex));
             internships.add(new Internship(
                     cursor.getInt(idIndex),
@@ -271,7 +255,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             ));
         }
         cursor.close();
-        db.close();
         return internships;
     }
 
@@ -281,7 +264,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String selection = COL_INTERNSHIP_ID + "=?";
         String[] selectionArgs = {String.valueOf(id)};
         Cursor cursor = db.query(TABLE_INTERNSHIPS, columns, selection, selectionArgs, null, null, null);
-
         Internship internship = null;
         if (cursor.moveToFirst()) {
             int idIndex = cursor.getColumnIndexOrThrow(COL_INTERNSHIP_ID);
@@ -295,7 +277,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int requirementsIndex = cursor.getColumnIndexOrThrow(COL_REQUIREMENTS);
             int stipendIndex = cursor.getColumnIndexOrThrow(COL_STIPEND);
             int deadlineIndex = cursor.getColumnIndexOrThrow(COL_DEADLINE);
-
             internship = new Internship(
                     cursor.getInt(idIndex),
                     cursor.getString(titleIndex),
@@ -311,7 +292,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             );
         }
         cursor.close();
-        db.close();
         return internship;
     }
 
@@ -335,7 +315,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String selection = COL_COMPANY_ID + "=?";
         String[] selectionArgs = {String.valueOf(companyId)};
         Cursor cursor = db.query(TABLE_INTERNSHIPS, columns, selection, selectionArgs, null, null, null);
-
         while (cursor.moveToNext()) {
             int idIndex = cursor.getColumnIndexOrThrow(COL_INTERNSHIP_ID);
             int titleIndex = cursor.getColumnIndexOrThrow(COL_TITLE);
@@ -348,7 +327,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int requirementsIndex = cursor.getColumnIndexOrThrow(COL_REQUIREMENTS);
             int stipendIndex = cursor.getColumnIndexOrThrow(COL_STIPEND);
             int deadlineIndex = cursor.getColumnIndexOrThrow(COL_DEADLINE);
-
             String companyName = getCompanyName(db, cursor.getInt(companyIdIndex));
             internships.add(new Internship(
                     cursor.getInt(idIndex),
@@ -365,7 +343,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             ));
         }
         cursor.close();
-        db.close();
         return internships;
     }
 
@@ -383,9 +360,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_STIPEND, stipend);
         values.put(COL_DEADLINE, deadline);
         values.put(COL_DATE_POSTED, datePosted);
-
         long result = db.insert(TABLE_INTERNSHIPS, null, values);
-        db.close();
         return result != -1;
     }
 
@@ -401,11 +376,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_REQUIREMENTS, requirements);
         values.put(COL_STIPEND, stipend);
         values.put(COL_DEADLINE, deadline);
-
         String whereClause = COL_INTERNSHIP_ID + "=?";
         String[] whereArgs = {String.valueOf(internshipId)};
         int result = db.update(TABLE_INTERNSHIPS, values, whereClause, whereArgs);
-        db.close();
         return result > 0;
+    }
+
+    public void closeDatabase() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        if (db != null && db.isOpen()) {
+            db.close();
+        }
     }
 }

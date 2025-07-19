@@ -3,6 +3,7 @@ package com.example.irr_project;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,7 @@ public class InternshipListingsActivity extends AppCompatActivity {
     private Spinner spinnerFilter;
     private CheckBox checkBoxSortByDate;
     private List<Internship> internshipList;
+    private static final String TAG = "InternshipListings";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,13 +46,18 @@ public class InternshipListingsActivity extends AppCompatActivity {
         dbHelper = new DatabaseHelper(this);
         dbHelper.getReadableDatabase();
 
-        // Set up ListView
+        // Load internships
         internshipList = dbHelper.getAllInternships();
-        if (internshipList == null) {
+        if (internshipList == null || internshipList.isEmpty()) {
             internshipList = new ArrayList<>();
             Toast.makeText(this, "No internships available", Toast.LENGTH_SHORT).show();
+        } else {
+            Log.d(TAG, "Loaded " + internshipList.size() + " internships");
+            for (Internship i : internshipList) {
+                Log.d(TAG, "Internship: " + i.getTitle() + ", Field: " + i.getField());
+            }
         }
-        internshipAdapter = new InternshipAdapter(this, R.layout.internship_item, internshipList);
+        internshipAdapter = new InternshipAdapter(this, R.layout.internship_item, new ArrayList<>(internshipList));
         listViewInternships.setAdapter(internshipAdapter);
 
         // Set up Spinner for filtering
@@ -61,7 +68,7 @@ public class InternshipListingsActivity extends AppCompatActivity {
         spinnerFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                filterInternships();
+                updateInternshipList();
             }
 
             @Override
@@ -69,40 +76,45 @@ public class InternshipListingsActivity extends AppCompatActivity {
         });
 
         // Set up CheckBox for sorting
-        checkBoxSortByDate.setOnCheckedChangeListener((buttonView, isChecked) -> filterInternships());
+        checkBoxSortByDate.setOnCheckedChangeListener((buttonView, isChecked) -> updateInternshipList());
 
         // Set up ListView item click listener
         listViewInternships.setOnItemClickListener((parent, view, position, id) -> {
-            Internship internship = internshipList.get(position);
-            Intent intent = new Intent(InternshipListingsActivity.this, InternshipDetailsActivity.class);
-            intent.putExtra("internshipId", internship.getId()); // Use actual ID
-            startActivity(intent);
+            Internship internship = internshipAdapter.getItem(position);
+            if (internship != null) {
+                Intent intent = new Intent(InternshipListingsActivity.this, InternshipDetailsActivity.class);
+                intent.putExtra("internshipId", internship.getId());
+                startActivity(intent);
+            }
         });
     }
 
-    private void filterInternships() {
+    private void updateInternshipList() {
+        List<Internship> filteredList = new ArrayList<>(internshipList); // Copy original list
         String selectedField = spinnerFilter.getSelectedItem().toString();
         boolean sortByDate = checkBoxSortByDate.isChecked();
 
-        List<Internship> filteredList = new ArrayList<>();
-        for (Internship internship : internshipList) {
-            if (selectedField.equals("All") || internship.getField().equals(selectedField)) {
-                filteredList.add(internship);
-            }
+        // Filter by field
+        if (!selectedField.equals("All")) {
+            filteredList.removeIf(internship -> !internship.getField().equals(selectedField));
         }
 
+        // Sort by date if checked
         if (sortByDate) {
             Collections.sort(filteredList, new Comparator<Internship>() {
                 @Override
                 public int compare(Internship i1, Internship i2) {
+                    if (i1.getDatePosted() == null || i2.getDatePosted() == null) return 0;
                     return i2.getDatePosted().compareTo(i1.getDatePosted()); // Newest first
                 }
             });
         }
 
+        // Update adapter
         internshipAdapter.clear();
         internshipAdapter.addAll(filteredList);
         internshipAdapter.notifyDataSetChanged();
+        Log.d(TAG, "Updated list with " + filteredList.size() + " items, Field: " + selectedField + ", Sort: " + sortByDate);
     }
 
     // Custom ArrayAdapter for ListView
@@ -113,7 +125,7 @@ public class InternshipListingsActivity extends AppCompatActivity {
         public InternshipAdapter(Context context, int resource, List<Internship> internshipList) {
             super(context, resource, internshipList);
             this.context = context;
-            this.internshipList = internshipList != null ? internshipList : new ArrayList<>();
+            this.internshipList = internshipList != null ? new ArrayList<>(internshipList) : new ArrayList<>();
         }
 
         @Override
@@ -129,21 +141,21 @@ public class InternshipListingsActivity extends AppCompatActivity {
                 TextView textViewLocation = convertView.findViewById(R.id.textViewLocation);
                 TextView textViewDuration = convertView.findViewById(R.id.textViewDuration);
 
-                if (textViewTitle != null) {
-                    textViewTitle.setText(internship.getTitle() != null ? internship.getTitle() : "No Title");
-                }
-                if (textViewCompany != null) {
-                    textViewCompany.setText("Company: " + (internship.getCompany() != null ? internship.getCompany() : "Unknown"));
-                }
-                if (textViewLocation != null) {
-                    textViewLocation.setText("Location: " + (internship.getLocation() != null ? internship.getLocation() : "Unknown"));
-                }
-                if (textViewDuration != null) {
-                    textViewDuration.setText("Duration: " + (internship.getDuration() != null ? internship.getDuration() : "Unknown"));
-                }
+                if (textViewTitle != null) textViewTitle.setText(internship.getTitle() != null ? internship.getTitle() : "No Title");
+                if (textViewCompany != null) textViewCompany.setText("Company: " + (internship.getCompany() != null ? internship.getCompany() : "Unknown"));
+                if (textViewLocation != null) textViewLocation.setText("Location: " + (internship.getLocation() != null ? internship.getLocation() : "Unknown"));
+                if (textViewDuration != null) textViewDuration.setText("Duration: " + (internship.getDuration() != null ? internship.getDuration() : "Unknown"));
             }
 
             return convertView;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dbHelper != null) {
+            dbHelper.closeDatabase();
         }
     }
 }

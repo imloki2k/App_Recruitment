@@ -1,6 +1,9 @@
 package com.example.irr_project;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
@@ -29,7 +32,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // Initialize DatabaseHelper
         dbHelper = new DatabaseHelper(this);
-        dbHelper.getWritableDatabase(); // Ensure database is created
+        dbHelper.getWritableDatabase();
 
         // Set up login button click listener
         buttonLogin.setOnClickListener(v -> {
@@ -44,16 +47,28 @@ public class LoginActivity extends AppCompatActivity {
             // Check credentials and get role from database
             String role = dbHelper.getUserRole(email, password);
             if (role != null) {
-                Toast.makeText(this, "Login successful as " + role, Toast.LENGTH_SHORT).show();
-                // Navigate to appropriate dashboard
-                Intent intent;
-                if (role.equals("student")) {
-                    intent = new Intent(LoginActivity.this, InternshipListingsActivity.class);
+                // Get userId from database (placeholder logic)
+                int userId = getUserIdFromEmail(email); // Cần triển khai phương thức này
+                if (userId != -1) {
+                    // Save userId to SharedPreferences
+                    SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putInt("userId", userId);
+                    editor.apply();
+
+                    Toast.makeText(this, "Login successful as " + role, Toast.LENGTH_SHORT).show();
+                    // Navigate to appropriate dashboard
+                    Intent intent;
+                    if (role.equals("student")) {
+                        intent = new Intent(LoginActivity.this, InternshipListingsActivity.class);
+                    } else {
+                        intent = new Intent(LoginActivity.this, RecruiterDashboardActivity.class);
+                    }
+                    startActivity(intent);
+                    finish();
                 } else {
-                    intent = new Intent(LoginActivity.this, RecruiterDashboardActivity.class);
+                    Toast.makeText(this, "User ID not found", Toast.LENGTH_SHORT).show();
                 }
-                startActivity(intent);
-                finish();
             } else {
                 Toast.makeText(this, "Invalid email or password", Toast.LENGTH_SHORT).show();
             }
@@ -65,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
             editTextEmail.setError("Enter a valid email");
             return false;
         }
-        if (password.length() < 6) {
+        if (password.isEmpty() || password.length() < 6) {
             editTextPassword.setError("Password must be at least 6 characters");
             return false;
         }
@@ -75,5 +90,30 @@ public class LoginActivity extends AppCompatActivity {
     public void goToRegister(View view) {
         Intent intent = new Intent(this, RegisterActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dbHelper != null) {
+            dbHelper.closeDatabase();
+        }
+    }
+
+    // Placeholder method to get userId from email
+    private int getUserIdFromEmail(String email) {
+        // Implement logic to query userId from TABLE_USERS based on email
+        // This is a placeholder; replace with actual database query
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String[] columns = {DatabaseHelper.COL_USER_ID};
+        String selection = DatabaseHelper.COL_EMAIL + "=?";
+        String[] selectionArgs = {email};
+        Cursor cursor = db.query(DatabaseHelper.TABLE_USERS, columns, selection, selectionArgs, null, null, null);
+        int userId = -1;
+        if (cursor.moveToFirst()) {
+            userId = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_USER_ID));
+        }
+        cursor.close();
+        return userId;
     }
 }

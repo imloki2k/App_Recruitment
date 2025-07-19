@@ -2,6 +2,7 @@ package com.example.irr_project;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
@@ -53,18 +54,22 @@ public class RegisterActivity extends AppCompatActivity {
             }
 
             // Insert user into database
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
             ContentValues values = new ContentValues();
-            values.put("email", email);
-            values.put("password", password); // In production, hash password
-            values.put("role", selectedRole.getText().toString().toLowerCase());
-            values.put("name", name);
+            values.put(dbHelper.COL_EMAIL, email);
+            values.put(dbHelper.COL_PASSWORD, password); // In production, hash password
+            values.put(dbHelper.COL_ROLE, selectedRole.getText().toString().toLowerCase());
+            values.put(dbHelper.COL_NAME, name);
             if (selectedRole.getText().toString().equalsIgnoreCase("student")) {
-                values.put("university", universityOrCompany);
+                values.put(dbHelper.COL_UNIVERSITY, universityOrCompany.isEmpty() ? null : universityOrCompany);
+                values.putNull(dbHelper.COL_COMPANY);
             } else {
-                values.put("company", universityOrCompany);
+                values.put(dbHelper.COL_COMPANY, universityOrCompany.isEmpty() ? null : universityOrCompany);
+                values.putNull(dbHelper.COL_UNIVERSITY);
             }
 
-            long result = dbHelper.getWritableDatabase().insert("users", null, values);
+            long result = db.insert(dbHelper.TABLE_USERS, null, values);
+            db.close();
             if (result != -1) {
                 Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show();
                 finish(); // Return to LoginActivity
@@ -79,7 +84,7 @@ public class RegisterActivity extends AppCompatActivity {
             editTextEmail.setError("Enter a valid email");
             return false;
         }
-        if (password.length() < 6) {
+        if (password.isEmpty() || password.length() < 6) {
             editTextPassword.setError("Password must be at least 6 characters");
             return false;
         }
@@ -101,5 +106,13 @@ public class RegisterActivity extends AppCompatActivity {
     public void goToLogin(View view) {
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dbHelper != null) {
+            dbHelper.closeDatabase();
+        }
     }
 }
