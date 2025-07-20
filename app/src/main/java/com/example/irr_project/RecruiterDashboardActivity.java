@@ -41,7 +41,8 @@ public class RecruiterDashboardActivity extends AppCompatActivity {
         recyclerViewApplications = findViewById(R.id.recyclerViewApplications);
         notificationBadge = findViewById(R.id.notificationBadge);
         findViewById(R.id.buttonCreateInternship).setOnClickListener(v -> goToCreateInternship());
-        findViewById(R.id.buttonLogout).setOnClickListener(v -> logout()); // Thêm nút Đăng xuất
+        findViewById(R.id.buttonLogout).setOnClickListener(v -> logout());
+        findViewById(R.id.buttonChat).setOnClickListener(v -> goToChat()); // Thêm nút Chat
 
         if (recyclerViewApplications == null || notificationBadge == null) {
             Log.e(TAG, "Không tìm thấy RecyclerView hoặc notificationBadge");
@@ -196,6 +197,18 @@ public class RecruiterDashboardActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    private void goToChat() {
+        try {
+            Intent intent = new Intent(this, ChatActivity.class);
+            intent.putExtra("userId", companyId); // Truyền companyId của recruiter
+            intent.putExtra("role", "recruiter"); // Đặt vai trò là recruiter
+            startActivity(intent);
+        } catch (Exception e) {
+            Log.e(TAG, "Lỗi chuyển đến ChatActivity: ", e);
+            Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void logout() {

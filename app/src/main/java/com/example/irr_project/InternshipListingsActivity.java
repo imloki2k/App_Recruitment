@@ -43,7 +43,8 @@ public class InternshipListingsActivity extends AppCompatActivity {
             spinnerFilter = findViewById(R.id.spinnerFilter);
             checkBoxSortByDate = findViewById(R.id.checkBoxSortByDate);
             findViewById(R.id.buttonApplications).setOnClickListener(v -> goToMyApplications());
-            findViewById(R.id.buttonLogout).setOnClickListener(v -> logout()); // Thêm nút Đăng xuất
+            findViewById(R.id.buttonLogout).setOnClickListener(v -> logout());
+            findViewById(R.id.buttonChat).setOnClickListener(v -> goToChat()); // Thêm nút Chat
 
             if (recyclerViewInternships == null || spinnerFilter == null || checkBoxSortByDate == null) {
                 Log.e(TAG, "Không tìm thấy một hoặc nhiều thành phần giao diện");
@@ -135,6 +136,18 @@ public class InternshipListingsActivity extends AppCompatActivity {
             startActivity(intent);
         } catch (Exception e) {
             Log.e(TAG, "Lỗi chuyển đến MyApplicationsActivity: ", e);
+            Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void goToChat() {
+        try {
+            Intent intent = new Intent(this, ChatActivity.class);
+            intent.putExtra("userId", currentStudentId); // Truyền userId của sinh viên
+            intent.putExtra("role", "student"); // Đặt vai trò là sinh viên
+            startActivity(intent);
+        } catch (Exception e) {
+            Log.e(TAG, "Lỗi chuyển đến ChatActivity: ", e);
             Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }

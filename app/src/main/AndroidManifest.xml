@@ -30,5 +30,6 @@
         <activity android:name=".EditInternshipActivity" />
         <activity android:name=".CreateInternshipActivity" />
         <activity android:name=".NotificationDetailsActivity" />
+        <activity android:name=".ChatActivity" />
     </application>
 </manifest>
