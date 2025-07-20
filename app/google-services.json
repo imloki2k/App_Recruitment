@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "243995112858",
+    "firebase_url": "https://support-e4b8c-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "support-e4b8c",
+    "storage_bucket": "support-e4b8c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:243995112858:android:19bfb02b8323bc8dbbb623",
+        "android_client_info": {
+          "package_name": "com.example.irr_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-me5z6uQ5KVKZaPPoqu0BfnLVb5VDSrg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
