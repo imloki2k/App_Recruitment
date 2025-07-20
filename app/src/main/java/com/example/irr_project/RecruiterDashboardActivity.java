@@ -31,16 +31,17 @@ public class RecruiterDashboardActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        getSupportActionBar().hide();
         super.onCreate(savedInstanceState);
         // Enable StrictMode to avoid hiddenapi issues on BlueStacks
         android.os.StrictMode.setThreadPolicy(new android.os.StrictMode.ThreadPolicy.Builder().permitAll().build());
+        getSupportActionBar().hide();
         setContentView(R.layout.activity_recruiter_dashboard);
 
         // Khởi tạo giao diện
         recyclerViewApplications = findViewById(R.id.recyclerViewApplications);
         notificationBadge = findViewById(R.id.notificationBadge);
         findViewById(R.id.buttonCreateInternship).setOnClickListener(v -> goToCreateInternship());
+        findViewById(R.id.buttonLogout).setOnClickListener(v -> logout()); // Thêm nút Đăng xuất
 
         if (recyclerViewApplications == null || notificationBadge == null) {
             Log.e(TAG, "Không tìm thấy RecyclerView hoặc notificationBadge");
@@ -111,6 +112,7 @@ public class RecruiterDashboardActivity extends AppCompatActivity {
         // Tải danh sách đơn ứng tuyển và kiểm tra thông báo
         loadApplications();
         checkNotifications();
+        setupNotificationBadgeClick(); // Thêm sự kiện click cho badge
     }
 
     private void loadApplications() {
@@ -139,12 +141,18 @@ public class RecruiterDashboardActivity extends AppCompatActivity {
     private void checkNotifications() {
         if (companyId != -1) {
             Executors.newSingleThreadExecutor().execute(() -> {
-                List<String> notifications = dbHelper.getUnreadNotifications(companyId);
+                List<String> notifications = dbHelper.getAllNotifications(companyId); // Lấy tất cả thông báo
                 runOnUiThread(() -> {
-                    if (!notifications.isEmpty()) {
-                        notificationBadge.setText(String.valueOf(notifications.size()));
+                    List<String> unreadNotifications = new ArrayList<>();
+                    for (String notification : notifications) {
+                        if (dbHelper.isNotificationUnread(companyId, notification)) {
+                            unreadNotifications.add(notification);
+                        }
+                    }
+                    if (!unreadNotifications.isEmpty()) {
+                        notificationBadge.setText(String.valueOf(unreadNotifications.size()));
                         notificationBadge.setVisibility(View.VISIBLE);
-                        showNotificationSnackbar(notifications);
+                        showNotificationSnackbar(unreadNotifications);
                     } else {
                         notificationBadge.setVisibility(View.GONE);
                     }
@@ -162,8 +170,43 @@ public class RecruiterDashboardActivity extends AppCompatActivity {
                     startActivity(intent);
                     dbHelper.markNotificationsAsRead(companyId); // Đánh dấu đã đọc
                     notificationBadge.setVisibility(View.GONE);
+                    checkNotifications(); // Cập nhật lại badge
                 });
         snackbar.show();
+    }
+
+    private void setupNotificationBadgeClick() {
+        notificationBadge.setOnClickListener(v -> {
+            if (companyId != -1) {
+                Executors.newSingleThreadExecutor().execute(() -> {
+                    List<String> notifications = dbHelper.getAllNotifications(companyId); // Lấy tất cả thông báo
+                    runOnUiThread(() -> {
+                        List<String> unreadNotifications = new ArrayList<>();
+                        for (String notification : notifications) {
+                            if (dbHelper.isNotificationUnread(companyId, notification)) {
+                                unreadNotifications.add(notification);
+                            }
+                        }
+                        if (!unreadNotifications.isEmpty()) {
+                            Intent intent = new Intent(this, NotificationDetailsActivity.class);
+                            intent.putStringArrayListExtra("notifications", new ArrayList<>(unreadNotifications));
+                            startActivity(intent);
+                        }
+                    });
+                });
+            }
+        });
+    }
+
+    private void logout() {
+        SharedPreferences prefs = getSharedPreferences(SHARED_PREFS_USER, MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.clear(); // Xóa tất cả dữ liệu đăng nhập
+        editor.apply();
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Xóa stack activity
+        startActivity(intent);
+        finish();
     }
 
     @Override

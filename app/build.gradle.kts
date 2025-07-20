@@ -39,6 +39,7 @@ dependencies {
     implementation(libs.drawerlayout)
     implementation(libs.cardview)
     implementation(libs.constraintlayout)
+    implementation(libs.play.services.maps)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

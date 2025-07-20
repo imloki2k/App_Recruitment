@@ -9,7 +9,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -31,23 +30,22 @@ public class InternshipListingsActivity extends AppCompatActivity {
     private Spinner spinnerFilter;
     private CheckBox checkBoxSortByDate;
     private int currentStudentId = -1;
-    private TextView notificationBadge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        getSupportActionBar().hide();
         super.onCreate(savedInstanceState);
         try {
+            getSupportActionBar().hide();
             setContentView(R.layout.activity_internship_listings);
 
             // Khởi tạo giao diện
             recyclerViewInternships = findViewById(R.id.recyclerViewInternships);
             spinnerFilter = findViewById(R.id.spinnerFilter);
             checkBoxSortByDate = findViewById(R.id.checkBoxSortByDate);
-            notificationBadge = findViewById(R.id.notificationBadge);
             findViewById(R.id.buttonApplications).setOnClickListener(v -> goToMyApplications());
+            findViewById(R.id.buttonLogout).setOnClickListener(v -> logout()); // Thêm nút Đăng xuất
 
-            if (recyclerViewInternships == null || spinnerFilter == null || checkBoxSortByDate == null || notificationBadge == null) {
+            if (recyclerViewInternships == null || spinnerFilter == null || checkBoxSortByDate == null) {
                 Log.e(TAG, "Không tìm thấy một hoặc nhiều thành phần giao diện");
                 Toast.makeText(this, "Lỗi giao diện: Không tìm thấy thành phần", Toast.LENGTH_LONG).show();
                 return;
@@ -93,9 +91,8 @@ public class InternshipListingsActivity extends AppCompatActivity {
             // Xử lý sự kiện CheckBox sắp xếp
             checkBoxSortByDate.setOnCheckedChangeListener((buttonView, isChecked) -> filterInternships());
 
-            // Tải danh sách thực tập và kiểm tra thông báo
+            // Tải danh sách thực tập
             filterInternships();
-            checkNotifications();
         } catch (Exception e) {
             Log.e(TAG, "Lỗi khởi tạo InternshipListingsActivity: ", e);
             Toast.makeText(this, "Lỗi khởi tạo: " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -142,20 +139,15 @@ public class InternshipListingsActivity extends AppCompatActivity {
         }
     }
 
-    private void checkNotifications() {
-        if (currentStudentId != -1) {
-            Executors.newSingleThreadExecutor().execute(() -> {
-                List<String> notifications = dbHelper.getUnreadNotifications(currentStudentId);
-                runOnUiThread(() -> {
-                    if (!notifications.isEmpty()) {
-                        notificationBadge.setText(String.valueOf(notifications.size()));
-                        notificationBadge.setVisibility(View.VISIBLE);
-                    } else {
-                        notificationBadge.setVisibility(View.GONE);
-                    }
-                });
-            });
-        }
+    private void logout() {
+        SharedPreferences prefs = getSharedPreferences(SHARED_PREFS_USER, MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.clear(); // Xóa tất cả dữ liệu đăng nhập
+        editor.apply();
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Xóa stack activity
+        startActivity(intent);
+        finish();
     }
 
     @Override

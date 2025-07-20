@@ -20,6 +20,7 @@ recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version
 drawerlayout = { group = "androidx.drawerlayout", name = "drawerlayout", version.ref = "drawerlayout" }
 cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardview" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version = "18.2.0" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

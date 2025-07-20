@@ -612,4 +612,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         return title;
     }
+    public boolean isNotificationUnread(int userId, String notification) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT read FROM notifications WHERE user_id_notif = ? AND message = ? AND read = 0";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId), notification});
+        boolean isUnread = cursor.getCount() > 0;
+        cursor.close();
+        return isUnread;
+    }
+
+    public List<String> getAllNotifications(int userId) {
+        List<String> notifications = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT message FROM notifications WHERE user_id_notif = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+        if (cursor.moveToFirst()) {
+            do {
+                notifications.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return notifications;
+    }
 }
