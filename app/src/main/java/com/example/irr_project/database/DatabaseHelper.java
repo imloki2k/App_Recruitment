@@ -5,8 +5,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
+import com.example.irr_project.Application;
 import com.example.irr_project.Internship;
+import com.example.irr_project.MyApplicationsActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +17,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "internship_app.db";
     private static final int DATABASE_VERSION = 1;
-
+    private static final String TAG_DB_HELPER = "DatabaseHelper";
     // Table names
     private static final String TABLE_USERS = "users";
     private static final String TABLE_INTERNSHIPS = "internships";
@@ -69,9 +72,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL_MESSAGE = "message";
     private static final String COL_TYPE = "type"; // e.g., ApplicationUpdate, InterviewInvite
     private static final String COL_READ = "read"; // 0 for unread, 1 for read
+    private static final String COL_RELATED_ITEM_ID = "related_item_id"; // ID của application hoặc interview liên quan (tùy chọn, để điều hướng)
+    private static final String COL_TIMESTAMP_NOTIF = "timestamp_notif";
 
     public DatabaseHelper(Context context) {
+
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        final String DATABASE_NAME = "internship_app.db";
+        final int DATABASE_VERSION = 1;
+        final String TAG_DB_HELPER = "DatabaseHelper";
     }
 
     @Override
@@ -407,5 +416,264 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int result = db.update(TABLE_INTERNSHIPS, values, whereClause, whereArgs);
         db.close();
         return result > 0;
+    }
+
+    public List<Application> getApplicationsByStudentId(int studentId) {
+        List<Application> applicationList = new ArrayList<>(); // Sửa kiểu của ArrayList
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+
+        // Sử dụng COL_INTERNSHIP_ID (được định nghĩa cho bảng applications)
+        String query = "SELECT a." + COL_APPLICATION_ID + ", " +
+                "a." + COL_STUDENT_ID + ", " +
+                "a." + COL_INTERNSHIP_ID + " AS app_internship_id, " + // Sử dụng alias nếu muốn, hoặc trực tiếp cột
+                "i." + COL_TITLE + " AS internship_title, " +
+                "u_company." + COL_NAME + " AS company_name, " +
+                "a." + COL_RESUME + ", " +
+                "a." + COL_STATUS + " " +
+                "FROM " + TABLE_APPLICATIONS + " a " +
+                "INNER JOIN " + TABLE_INTERNSHIPS + " i ON a." + COL_INTERNSHIP_ID + " = i." + COL_INTERNSHIP_ID + " " +
+                "INNER JOIN " + TABLE_USERS + " u_company ON i." + COL_COMPANY_ID + " = u_company." + COL_USER_ID + " " +
+                "WHERE a." + COL_STUDENT_ID + " = ?";
+
+        Log.d(TAG_DB_HELPER, "getApplicationsByStudentId query: " + query + " for studentId: " + studentId);
+
+        try {
+            cursor = db.rawQuery(query, new String[]{String.valueOf(studentId)});
+
+            if (cursor != null && cursor.moveToFirst()) {
+                int appIdIndex = cursor.getColumnIndexOrThrow(COL_APPLICATION_ID);
+                int studentIdAppIndex = cursor.getColumnIndexOrThrow(COL_STUDENT_ID);
+                int internshipIdAppIndex = cursor.getColumnIndexOrThrow("app_internship_id"); // Lấy theo alias
+                int internshipTitleIndex = cursor.getColumnIndexOrThrow("internship_title");
+                int companyNameIndex = cursor.getColumnIndexOrThrow("company_name");
+                int resumeIndex = cursor.getColumnIndexOrThrow(COL_RESUME);
+                int statusIndex = cursor.getColumnIndexOrThrow(COL_STATUS);
+
+                do {
+                    // Sửa cách tạo đối tượng Application
+                    Application application = new Application(
+                            cursor.getInt(appIdIndex),
+                            cursor.getInt(studentIdAppIndex),
+                            cursor.getInt(internshipIdAppIndex),
+                            cursor.getString(internshipTitleIndex),
+                            cursor.getString(companyNameIndex),
+                            cursor.getString(resumeIndex),
+                            cursor.getString(statusIndex)
+                    );
+                    applicationList.add(application);
+                } while (cursor.moveToNext());
+                Log.d(TAG_DB_HELPER, "Found " + applicationList.size() + " applications for studentId: " + studentId);
+            } else {
+                Log.d(TAG_DB_HELPER, "No applications found for studentId: " + studentId);
+            }
+        } catch (IllegalArgumentException iae) {
+            Log.e(TAG_DB_HELPER, "Error getting column index in getApplicationsByStudentId: " + iae.getMessage(), iae);
+        } catch (Exception e) {
+            Log.e(TAG_DB_HELPER, "Error while getting applications by student ID: " + e.getMessage(), e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            // Không nên đóng db ở đây nếu bạn còn dùng dbHelper ở nơi khác và db được lấy từ getReadableDatabase()
+        }
+        return applicationList;
+    }
+
+    public Application getApplicationById(int applicationId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        Application application = null; // Sửa kiểu của biến
+
+        // Sử dụng COL_INTERNSHIP_ID (được định nghĩa cho bảng applications)
+        String query = "SELECT a." + COL_APPLICATION_ID + ", " +
+                "a." + COL_STUDENT_ID + ", " +
+                "a." + COL_INTERNSHIP_ID + " AS app_internship_id, " +
+                "i." + COL_TITLE + " AS internship_title, " +
+                "u_company." + COL_NAME + " AS company_name, " +
+                "a." + COL_RESUME + ", " +
+                "a." + COL_STATUS + " " +
+                "FROM " + TABLE_APPLICATIONS + " a " +
+                "INNER JOIN " + TABLE_INTERNSHIPS + " i ON a." + COL_INTERNSHIP_ID + " = i." + COL_INTERNSHIP_ID + " " +
+                "INNER JOIN " + TABLE_USERS + " u_company ON i." + COL_COMPANY_ID + " = u_company." + COL_USER_ID + " " +
+                "WHERE a." + COL_APPLICATION_ID + " = ?";
+
+        try {
+            cursor = db.rawQuery(query, new String[]{String.valueOf(applicationId)});
+            if (cursor != null && cursor.moveToFirst()) {
+                int appIdIndex = cursor.getColumnIndexOrThrow(COL_APPLICATION_ID);
+                int studentIdAppIndex = cursor.getColumnIndexOrThrow(COL_STUDENT_ID);
+                int internshipIdAppIndex = cursor.getColumnIndexOrThrow("app_internship_id"); // Lấy theo alias
+                int internshipTitleIndex = cursor.getColumnIndexOrThrow("internship_title");
+                int companyNameIndex = cursor.getColumnIndexOrThrow("company_name");
+                int resumeIndex = cursor.getColumnIndexOrThrow(COL_RESUME);
+                int statusIndex = cursor.getColumnIndexOrThrow(COL_STATUS);
+
+                // Sửa cách tạo đối tượng Application
+                application = new Application(
+                        cursor.getInt(appIdIndex),
+                        cursor.getInt(studentIdAppIndex),
+                        cursor.getInt(internshipIdAppIndex),
+                        cursor.getString(internshipTitleIndex),
+                        cursor.getString(companyNameIndex),
+                        cursor.getString(resumeIndex),
+                        cursor.getString(statusIndex)
+                );
+            }
+        } catch (IllegalArgumentException iae) {
+            Log.e(TAG_DB_HELPER, "Error getting column index in getApplicationById: " + iae.getMessage(), iae);
+        } catch (Exception e) {
+            Log.e(TAG_DB_HELPER, "Error getting application by ID: " + e.getMessage(), e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return application;
+    }
+
+    public boolean updateApplicationStatus(int applicationId, String newStatus) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_STATUS, newStatus); // Giả sử newStatus là một trong các giá trị hợp lệ
+
+        String whereClause = COL_APPLICATION_ID + " = ?";
+        String[] whereArgs = {String.valueOf(applicationId)};
+        int rowsAffected = 0;
+
+        Log.d(TAG_DB_HELPER, "Updating application status for ID: " + applicationId + " to " + newStatus);
+
+        try {
+            rowsAffected = db.update(TABLE_APPLICATIONS, values, whereClause, whereArgs);
+        } catch (Exception e) {
+            Log.e(TAG_DB_HELPER, "Error updating application status: " + e.getMessage(), e);
+        }
+
+        if (rowsAffected > 0) {
+            Log.d(TAG_DB_HELPER, "Application status updated successfully for ID: " + applicationId);
+            return true;
+        } else {
+            Log.d(TAG_DB_HELPER, "Failed to update application status or application not found for ID: " + applicationId);
+            return false;
+        }
+    }
+
+    public static class NotificationType {
+        public static final String APPLICATION_UPDATE = "ApplicationUpdate";
+        public static final String INTERVIEW_INVITE = "InterviewInvite";
+        // Thêm các loại khác nếu cần, ví dụ: NEW_MESSAGE = "NewMessage";
+        public static final String NEW_APPLICATION = "new_application";         // Cho recruiter: có đơn ứng tuyển mới
+        public static final String INTERVIEW_RESPONSE = "interview_response";
+    }
+
+    // Lớp POKO (Plain Old Kotlin Object) hoặc POJO (Java) cho Notification
+    // Đặt ở một file riêng hoặc static inner class nếu đơn giản
+    public static class AppNotification { // Đổi tên nếu trùng với android.app.Notification
+        long id;
+        long userId;
+        String message;
+        String type;
+        boolean read;
+        long relatedItemId; // ID của application hoặc interview để điều hướng khi nhấn vào thông báo
+        String timestamp;
+
+        public AppNotification(long id, long userId, String message, String type, boolean read, long relatedItemId, String timestamp) {
+            this.id = id;
+            this.userId = userId;
+            this.message = message;
+            this.type = type;
+            this.read = read;
+            this.relatedItemId = relatedItemId;
+            this.timestamp = timestamp;
+        }
+
+        // Getters
+        public long getId() { return id; }
+        public String getMessage() { return message; }
+        public String getType() { return type; }
+        public long getRelatedItemId() { return relatedItemId; }
+        // ... các getters khác
+    }
+
+    public boolean addNotification(int userId, String message, String type, int relatedItemId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_USER_ID_NOTIF, userId);
+        values.put(COL_MESSAGE, message);
+        values.put(COL_TYPE, type);
+        values.put(COL_READ, 0); // Mặc định là chưa đọc
+        if (relatedItemId != -1) {
+            values.put(COL_RELATED_ITEM_ID, relatedItemId);
+        }
+        // COL_TIMESTAMP_NOTIF sẽ tự động được thêm nếu bạn thiết lập DEFAULT CURRENT_TIMESTAMP trong schema
+
+        long result = db.insert(TABLE_NOTIFICATIONS, null, values);
+        // db.close(); // Không nên đóng ở đây nếu dbHelper còn được dùng
+        return result != -1;
+    }
+
+    public List<AppNotification> getUnreadNotifications(int userId) {
+        List<AppNotification> notifications = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+
+        String query = "SELECT * FROM " + TABLE_NOTIFICATIONS +
+                " WHERE " + COL_USER_ID_NOTIF + " = ? AND " + COL_READ + " = 0" +
+                " ORDER BY " + COL_TIMESTAMP_NOTIF + " DESC"; // Mới nhất lên đầu
+
+        try {
+            cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+            if (cursor != null && cursor.moveToFirst()) {
+                int idIndex = cursor.getColumnIndexOrThrow(COL_NOTIFICATION_ID);
+                int userIdIndex = cursor.getColumnIndexOrThrow(COL_USER_ID_NOTIF);
+                int messageIndex = cursor.getColumnIndexOrThrow(COL_MESSAGE);
+                int typeIndex = cursor.getColumnIndexOrThrow(COL_TYPE);
+                int readIndex = cursor.getColumnIndexOrThrow(COL_READ);
+                int relatedItemIdIndex = cursor.getColumnIndexOrThrow(COL_RELATED_ITEM_ID);
+                int timestampIndex = cursor.getColumnIndexOrThrow(COL_TIMESTAMP_NOTIF);
+
+                do {
+                    notifications.add(new AppNotification(
+                            cursor.getLong(idIndex),
+                            cursor.getLong(userIdIndex),
+                            cursor.getString(messageIndex),
+                            cursor.getString(typeIndex),
+                            cursor.getInt(readIndex) == 1,
+                            cursor.getLong(relatedItemIdIndex),
+                            cursor.getString(timestampIndex)
+                    ));
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG_DB_HELPER, "Error getting unread notifications: " + e.getMessage(), e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            // db.close();
+        }
+        return notifications;
+    }
+
+    public boolean markNotificationAsRead(long notificationId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_READ, 1);
+
+        int rowsAffected = db.update(TABLE_NOTIFICATIONS, values, COL_NOTIFICATION_ID + " = ?", new String[]{String.valueOf(notificationId)});
+        // db.close();
+        return rowsAffected > 0;
+    }
+
+    public boolean markAllNotificationsAsRead(int userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_READ, 1);
+
+        int rowsAffected = db.update(TABLE_NOTIFICATIONS, values,
+                COL_USER_ID_NOTIF + " = ? AND " + COL_READ + " = 0",
+                new String[]{String.valueOf(userId)});
+        // db.close();
+        return rowsAffected > 0;
     }
 }
