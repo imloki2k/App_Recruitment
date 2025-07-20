@@ -29,6 +29,6 @@
         <activity android:name=".InterviewSchedulingActivity" />
         <activity android:name=".EditInternshipActivity" />
         <activity android:name=".CreateInternshipActivity" />
-
+        <activity android:name=".NotificationDetailsActivity" />
     </application>
 </manifest>

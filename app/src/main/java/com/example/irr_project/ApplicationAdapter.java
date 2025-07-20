@@ -1,5 +1,6 @@
 package com.example.irr_project;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +43,7 @@ public class ApplicationAdapter extends RecyclerView.Adapter<ApplicationAdapter.
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         Application app = applications.get(position);
         holder.internshipTitleTextView.setText(app.getInternshipTitle());
         holder.companyNameTextView.setText("Công ty: " + app.getCompanyName());

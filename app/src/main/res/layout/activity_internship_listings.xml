@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F5F5F5"
-    android:padding="72dp">
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/titleText"
@@ -16,6 +16,21 @@
         android:textColor="@android:color/black"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/notificationBadge" />
+
+    <TextView
+        android:id="@+id/notificationBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/notification_badge_background"
+        android:padding="4dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@id/titleText"
+        app:layout_constraintStart_toEndOf="@id/titleText"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <Spinner

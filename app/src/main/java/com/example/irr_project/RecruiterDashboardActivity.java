@@ -4,11 +4,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.irr_project.database.DatabaseHelper;
+import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -24,9 +27,11 @@ public class RecruiterDashboardActivity extends AppCompatActivity {
     private DatabaseHelper dbHelper;
     private List<Application> applicationList;
     private int companyId = -1;
+    private TextView notificationBadge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getSupportActionBar().hide();
         super.onCreate(savedInstanceState);
         // Enable StrictMode to avoid hiddenapi issues on BlueStacks
         android.os.StrictMode.setThreadPolicy(new android.os.StrictMode.ThreadPolicy.Builder().permitAll().build());
@@ -34,10 +39,11 @@ public class RecruiterDashboardActivity extends AppCompatActivity {
 
         // Khởi tạo giao diện
         recyclerViewApplications = findViewById(R.id.recyclerViewApplications);
+        notificationBadge = findViewById(R.id.notificationBadge);
         findViewById(R.id.buttonCreateInternship).setOnClickListener(v -> goToCreateInternship());
 
-        if (recyclerViewApplications == null) {
-            Log.e(TAG, "Không tìm thấy RecyclerView");
+        if (recyclerViewApplications == null || notificationBadge == null) {
+            Log.e(TAG, "Không tìm thấy RecyclerView hoặc notificationBadge");
             Toast.makeText(this, "Lỗi giao diện: Không tìm thấy thành phần", Toast.LENGTH_LONG).show();
             return;
         }
@@ -69,7 +75,7 @@ public class RecruiterDashboardActivity extends AppCompatActivity {
                 if (application.getStatus().equals(Application.Status.ACCEPTED.toString())) {
                     Intent intent = new Intent(RecruiterDashboardActivity.this, InterviewSchedulingActivity.class);
                     intent.putExtra("application_id", application.getApplicationId());
-                    intent.putExtra("student_id", application.getStudentId()); // Sử dụng student_id từ Application
+                    intent.putExtra("student_id", application.getStudentId());
                     startActivity(intent);
                     Log.d(TAG, "Navigating to InterviewSchedulingActivity for application ID: " + application.getApplicationId() + ", student ID: " + application.getStudentId());
                 } else {
@@ -102,8 +108,9 @@ public class RecruiterDashboardActivity extends AppCompatActivity {
         }, "recruiter");
         recyclerViewApplications.setAdapter(applicationAdapter);
 
-        // Tải danh sách đơn ứng tuyển
+        // Tải danh sách đơn ứng tuyển và kiểm tra thông báo
         loadApplications();
+        checkNotifications();
     }
 
     private void loadApplications() {
@@ -129,10 +136,41 @@ public class RecruiterDashboardActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private void checkNotifications() {
+        if (companyId != -1) {
+            Executors.newSingleThreadExecutor().execute(() -> {
+                List<String> notifications = dbHelper.getUnreadNotifications(companyId);
+                runOnUiThread(() -> {
+                    if (!notifications.isEmpty()) {
+                        notificationBadge.setText(String.valueOf(notifications.size()));
+                        notificationBadge.setVisibility(View.VISIBLE);
+                        showNotificationSnackbar(notifications);
+                    } else {
+                        notificationBadge.setVisibility(View.GONE);
+                    }
+                });
+            });
+        }
+    }
+
+    private void showNotificationSnackbar(List<String> notifications) {
+        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content),
+                        "Bạn có " + notifications.size() + " thông báo mới từ ứng viên!", Snackbar.LENGTH_LONG)
+                .setAction("Xem", v -> {
+                    Intent intent = new Intent(this, NotificationDetailsActivity.class);
+                    intent.putStringArrayListExtra("notifications", new ArrayList<>(notifications));
+                    startActivity(intent);
+                    dbHelper.markNotificationsAsRead(companyId); // Đánh dấu đã đọc
+                    notificationBadge.setVisibility(View.GONE);
+                });
+        snackbar.show();
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         loadApplications();
+        checkNotifications(); // Kiểm tra lại thông báo khi quay lại activity
     }
 
     @Override

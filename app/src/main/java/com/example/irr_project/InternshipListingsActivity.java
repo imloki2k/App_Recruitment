@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,9 +31,11 @@ public class InternshipListingsActivity extends AppCompatActivity {
     private Spinner spinnerFilter;
     private CheckBox checkBoxSortByDate;
     private int currentStudentId = -1;
+    private TextView notificationBadge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getSupportActionBar().hide();
         super.onCreate(savedInstanceState);
         try {
             setContentView(R.layout.activity_internship_listings);
@@ -41,9 +44,10 @@ public class InternshipListingsActivity extends AppCompatActivity {
             recyclerViewInternships = findViewById(R.id.recyclerViewInternships);
             spinnerFilter = findViewById(R.id.spinnerFilter);
             checkBoxSortByDate = findViewById(R.id.checkBoxSortByDate);
+            notificationBadge = findViewById(R.id.notificationBadge);
             findViewById(R.id.buttonApplications).setOnClickListener(v -> goToMyApplications());
 
-            if (recyclerViewInternships == null || spinnerFilter == null || checkBoxSortByDate == null) {
+            if (recyclerViewInternships == null || spinnerFilter == null || checkBoxSortByDate == null || notificationBadge == null) {
                 Log.e(TAG, "Không tìm thấy một hoặc nhiều thành phần giao diện");
                 Toast.makeText(this, "Lỗi giao diện: Không tìm thấy thành phần", Toast.LENGTH_LONG).show();
                 return;
@@ -89,8 +93,9 @@ public class InternshipListingsActivity extends AppCompatActivity {
             // Xử lý sự kiện CheckBox sắp xếp
             checkBoxSortByDate.setOnCheckedChangeListener((buttonView, isChecked) -> filterInternships());
 
-            // Tải danh sách thực tập
+            // Tải danh sách thực tập và kiểm tra thông báo
             filterInternships();
+            checkNotifications();
         } catch (Exception e) {
             Log.e(TAG, "Lỗi khởi tạo InternshipListingsActivity: ", e);
             Toast.makeText(this, "Lỗi khởi tạo: " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -134,6 +139,22 @@ public class InternshipListingsActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(TAG, "Lỗi chuyển đến MyApplicationsActivity: ", e);
             Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void checkNotifications() {
+        if (currentStudentId != -1) {
+            Executors.newSingleThreadExecutor().execute(() -> {
+                List<String> notifications = dbHelper.getUnreadNotifications(currentStudentId);
+                runOnUiThread(() -> {
+                    if (!notifications.isEmpty()) {
+                        notificationBadge.setText(String.valueOf(notifications.size()));
+                        notificationBadge.setVisibility(View.VISIBLE);
+                    } else {
+                        notificationBadge.setVisibility(View.GONE);
+                    }
+                });
+            });
         }
     }
 
