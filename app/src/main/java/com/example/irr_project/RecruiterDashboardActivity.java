@@ -1,126 +1,145 @@
 package com.example.irr_project;
 
-import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.util.Log;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.example.irr_project.database.DatabaseHelper;
-import com.example.irr_project.Internship;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class RecruiterDashboardActivity extends AppCompatActivity {
 
-    private ListView listViewInternships;
+    private static final String TAG = "RecruiterDashboardActivity";
+    private static final String SHARED_PREFS_USER = "user_prefs_details";
+    private static final String KEY_USER_ID = "logged_user_id";
+    private static final String KEY_USER_ROLE = "logged_user_role";
+    private RecyclerView recyclerViewApplications;
+    private ApplicationAdapter applicationAdapter;
     private DatabaseHelper dbHelper;
-    private List<Internship> internshipList;
-    private InternshipAdapter internshipAdapter;
-    private int companyId;
+    private List<Application> applicationList;
+    private int companyId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Enable StrictMode to avoid hiddenapi issues on BlueStacks
+        android.os.StrictMode.setThreadPolicy(new android.os.StrictMode.ThreadPolicy.Builder().permitAll().build());
         setContentView(R.layout.activity_recruiter_dashboard);
 
-        // Initialize UI components
-        listViewInternships = findViewById(R.id.listViewInternships);
-        Button buttonCreateInternship = findViewById(R.id.buttonCreateInternship);
+        // Khởi tạo giao diện
+        recyclerViewApplications = findViewById(R.id.recyclerViewApplications);
+        findViewById(R.id.buttonCreateInternship).setOnClickListener(v -> goToCreateInternship());
 
-        // Initialize DatabaseHelper
+        if (recyclerViewApplications == null) {
+            Log.e(TAG, "Không tìm thấy RecyclerView");
+            Toast.makeText(this, "Lỗi giao diện: Không tìm thấy thành phần", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Lấy companyId và vai trò từ SharedPreferences
+        SharedPreferences prefs = getSharedPreferences(SHARED_PREFS_USER, MODE_PRIVATE);
+        companyId = prefs.getInt(KEY_USER_ID, -1);
+        String userRole = prefs.getString(KEY_USER_ROLE, null);
+        if (companyId == -1 || !"recruiter".equals(userRole)) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại với vai trò nhà tuyển dụng.", Toast.LENGTH_LONG).show();
+            Log.e(TAG, "Không tìm thấy companyId hoặc vai trò không phải recruiter. CompanyId: " + companyId + ", Role: " + userRole);
+            finish();
+            return;
+        }
+
+        // Khởi tạo DatabaseHelper
         dbHelper = new DatabaseHelper(this);
-        dbHelper.getReadableDatabase();
+        applicationList = new ArrayList<>();
+        recyclerViewApplications.setLayoutManager(new LinearLayoutManager(this));
+        applicationAdapter = new ApplicationAdapter(this, applicationList, new ApplicationAdapter.OnApplicationActionListener() {
+            @Override
+            public void onWithdrawClick(Application application, int position) {
+                Toast.makeText(RecruiterDashboardActivity.this, "Nhà tuyển dụng không thể rút đơn.", Toast.LENGTH_SHORT).show();
+                Log.w(TAG, "Recruiter attempted to withdraw application ID: " + application.getApplicationId());
+            }
 
-        // Get current company ID (placeholder logic)
-        companyId = getCurrentUserId(); // Replace with real implementation
+            @Override
+            public void onScheduleInterviewClick(Application application, int position) {
+                if (application.getStatus().equals(Application.Status.ACCEPTED.toString())) {
+                    Intent intent = new Intent(RecruiterDashboardActivity.this, InterviewSchedulingActivity.class);
+                    intent.putExtra("application_id", application.getApplicationId());
+                    intent.putExtra("student_id", application.getStudentId()); // Sử dụng student_id từ Application
+                    startActivity(intent);
+                    Log.d(TAG, "Navigating to InterviewSchedulingActivity for application ID: " + application.getApplicationId() + ", student ID: " + application.getStudentId());
+                } else {
+                    Toast.makeText(RecruiterDashboardActivity.this, "Chỉ có thể lập lịch phỏng vấn cho đơn đã được chấp nhận.", Toast.LENGTH_SHORT).show();
+                    Log.w(TAG, "Cannot schedule interview for application ID: " + application.getApplicationId() + ", status: " + application.getStatus());
+                }
+            }
 
-        // Load internships
-        loadInternships();
+            @Override
+            public void onStatusChange(Application application, int position, String newStatus) {
+                if (application.getStatus().equals(Application.Status.WITHDRAWN.toString())) {
+                    Toast.makeText(RecruiterDashboardActivity.this, "Không thể thay đổi trạng thái đơn đã rút.", Toast.LENGTH_SHORT).show();
+                    Log.w(TAG, "Cannot change status of withdrawn application ID: " + application.getApplicationId());
+                    return;
+                }
+                Executors.newSingleThreadExecutor().execute(() -> {
+                    boolean success = dbHelper.updateApplicationStatus(application.getApplicationId(), newStatus);
+                    runOnUiThread(() -> {
+                        if (success) {
+                            Toast.makeText(RecruiterDashboardActivity.this, "Đã cập nhật trạng thái đơn thành " + newStatus, Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Updated status to " + newStatus + " for application ID: " + application.getApplicationId());
+                            loadApplications();
+                        } else {
+                            Toast.makeText(RecruiterDashboardActivity.this, "Lỗi: Không thể cập nhật trạng thái.", Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "Failed to update status for application ID: " + application.getApplicationId());
+                        }
+                    });
+                });
+            }
+        }, "recruiter");
+        recyclerViewApplications.setAdapter(applicationAdapter);
 
-        // Set up Create button
-        buttonCreateInternship.setOnClickListener(v -> {
-            Intent intent = new Intent(RecruiterDashboardActivity.this, CreateInternshipActivity.class);
-            startActivity(intent);
-        });
+        // Tải danh sách đơn ứng tuyển
+        loadApplications();
+    }
 
-        // Set up ListView item click for edit
-        listViewInternships.setOnItemClickListener((parent, view, position, id) -> {
-            Internship internship = internshipList.get(position);
-            Intent intent = new Intent(RecruiterDashboardActivity.this, EditInternshipActivity.class);
-            intent.putExtra("internshipId", internship.getId());
-            startActivity(intent);
+    private void loadApplications() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            List<Application> resultApplications = dbHelper.getApplicationsByCompanyId(companyId);
+            runOnUiThread(() -> {
+                applicationList.clear();
+                if (resultApplications != null && !resultApplications.isEmpty()) {
+                    applicationList.addAll(resultApplications);
+                    Log.d(TAG, "Loaded " + resultApplications.size() + " applications for company ID: " + companyId);
+                } else {
+                    Toast.makeText(this, "Không có đơn ứng tuyển nào.", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "No applications found for company ID: " + companyId);
+                }
+                applicationAdapter.notifyDataSetChanged();
+            });
         });
     }
 
-    private void loadInternships() {
-        internshipList = dbHelper.getInternshipsByCompanyId(companyId);
-        if (internshipList == null || internshipList.isEmpty()) {
-            Toast.makeText(this, "No internships available", Toast.LENGTH_SHORT).show();
-            internshipList = new ArrayList<>();
-        }
-        internshipAdapter = new InternshipAdapter(this, R.layout.internship_item, internshipList);
-        listViewInternships.setAdapter(internshipAdapter);
+    private void goToCreateInternship() {
+        Intent intent = new Intent(this, CreateInternshipActivity.class);
+        intent.putExtra("userId", companyId);
+        startActivity(intent);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        loadInternships(); // Refresh list when returning
+        loadApplications();
     }
 
-    // Placeholder method to get current user ID
-    private int getCurrentUserId() {
-        // This should fetch the logged-in recruiter's user ID from shared preferences or intent
-        return 2; // Replace with real implementation
-    }
-
-    // Custom ArrayAdapter for ListView
-    public static class InternshipAdapter extends ArrayAdapter<Internship> {
-        private List<Internship> internshipList;
-        private Context context;
-
-        public InternshipAdapter(Context context, int resource, List<Internship> internshipList) {
-            super(context, resource, internshipList);
-            this.context = context;
-            this.internshipList = internshipList != null ? internshipList : new ArrayList<>();
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = LayoutInflater.from(context).inflate(R.layout.internship_item, parent, false);
-            }
-
-            Internship internship = getItem(position);
-            if (internship != null) {
-                TextView textViewTitle = convertView.findViewById(R.id.textViewTitle);
-                TextView textViewCompany = convertView.findViewById(R.id.textViewCompany);
-                TextView textViewLocation = convertView.findViewById(R.id.textViewLocation);
-                TextView textViewDuration = convertView.findViewById(R.id.textViewDuration);
-
-                if (textViewTitle != null) {
-                    textViewTitle.setText(internship.getTitle());
-                }
-                if (textViewCompany != null) {
-                    textViewCompany.setText("Company: " + internship.getCompany());
-                }
-                if (textViewLocation != null) {
-                    textViewLocation.setText("Location: " + internship.getLocation());
-                }
-                if (textViewDuration != null) {
-                    textViewDuration.setText("Duration: " + internship.getDuration());
-                }
-            }
-
-            return convertView;
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dbHelper != null) {
+            dbHelper.closeDatabase();
         }
     }
 }

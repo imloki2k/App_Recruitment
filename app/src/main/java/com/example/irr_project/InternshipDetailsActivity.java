@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,11 +26,15 @@ import androidx.core.content.ContextCompat;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class InternshipDetailsActivity extends AppCompatActivity {
 
+    private static final String TAG = "InternshipDetailsActivity";
+    private static final String SHARED_PREFS_USER = "user_prefs_details";
+    private static final String KEY_USER_ID = "logged_user_id";
+    private static final String KEY_USER_ROLE = "logged_user_role";
     private TextView textViewTitle, textViewCompany, textViewDescription, textViewRequirements, textViewStipend, textViewDeadline, textViewStatus;
     private EditText editTextResume;
     private Button buttonApply, buttonUploadFile;
@@ -67,11 +72,13 @@ public class InternshipDetailsActivity extends AppCompatActivity {
             requestStoragePermission();
         }
 
-        // Get user ID from SharedPreferences
-        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-        userId = prefs.getInt("userId", -1);
-        if (userId == -1) {
-            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+        // Get user ID and role from SharedPreferences
+        SharedPreferences prefs = getSharedPreferences(SHARED_PREFS_USER, MODE_PRIVATE);
+        userId = prefs.getInt(KEY_USER_ID, -1);
+        String userRole = prefs.getString(KEY_USER_ROLE, null);
+        if (userId == -1 || !"student".equals(userRole)) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại với vai trò sinh viên.", Toast.LENGTH_LONG).show();
+            Log.e(TAG, "Không tìm thấy userId hoặc vai trò không phải sinh viên. UserId: " + userId + ", Role: " + userRole);
             finish();
             return;
         }
@@ -84,9 +91,14 @@ public class InternshipDetailsActivity extends AppCompatActivity {
                 displayInternshipDetails();
                 checkApplicationStatus();
             } else {
-                Toast.makeText(this, "Internship not found", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Không tìm thấy thông tin thực tập.", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Internship not found for ID: " + internshipId);
                 finish();
             }
+        } else {
+            Toast.makeText(this, "Lỗi: Không nhận được ID thực tập.", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Invalid internshipId: " + internshipId);
+            finish();
         }
 
         // Set up file picker using ACTION_OPEN_DOCUMENT for broader file access
@@ -96,9 +108,11 @@ public class InternshipDetailsActivity extends AppCompatActivity {
                         selectedFileUri = result.getData().getData();
                         if (selectedFileUri != null) {
                             saveFileToInternalStorage(selectedFileUri); // Lưu file vào bộ nhớ nội bộ
-                            editTextResume.setText("File selected: " + getFileName(selectedFileUri));
+                            editTextResume.setText("File đã chọn: " + getFileName(selectedFileUri));
+                            Log.d(TAG, "File selected: " + selectedFileUri.toString());
                         } else {
-                            Toast.makeText(this, "No file selected", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Không chọn được file.", Toast.LENGTH_SHORT).show();
+                            Log.w(TAG, "No file selected");
                         }
                     }
                 });
@@ -108,7 +122,7 @@ public class InternshipDetailsActivity extends AppCompatActivity {
             String resumeText = editTextResume.getText().toString().trim();
             String resumeContent = selectedFileUri != null ? selectedFileUri.toString() : resumeText;
             if (resumeContent.isEmpty()) {
-                editTextResume.setError("Please enter your resume or select a file");
+                editTextResume.setError("Vui lòng nhập CV hoặc chọn file");
                 return;
             }
             applyForInternship(resumeContent);
@@ -118,6 +132,7 @@ public class InternshipDetailsActivity extends AppCompatActivity {
     private void requestStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+            Log.d(TAG, "Requesting READ_EXTERNAL_STORAGE permission");
         }
     }
 
@@ -137,7 +152,7 @@ public class InternshipDetailsActivity extends AppCompatActivity {
                 intent.setType("*/*");
                 pickFileLauncher.launch(intent);
             } else {
-                Toast.makeText(this, "Media permission required. Please allow in settings.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Cần quyền truy cập media. Vui lòng cấp quyền trong cài đặt.", Toast.LENGTH_LONG).show();
                 ActivityCompat.requestPermissions(this, new String[]{
                         Manifest.permission.READ_MEDIA_IMAGES,
                         Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
@@ -150,7 +165,7 @@ public class InternshipDetailsActivity extends AppCompatActivity {
                 intent.setType("*/*");
                 pickFileLauncher.launch(intent);
             } else {
-                Toast.makeText(this, "Storage permission required. Please allow in the permission popup.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Cần quyền truy cập bộ nhớ. Vui lòng cấp quyền trong cửa sổ bật lên.", Toast.LENGTH_LONG).show();
                 requestStoragePermission();
             }
         }
@@ -161,10 +176,12 @@ public class InternshipDetailsActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == STORAGE_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Đã cấp quyền truy cập.", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Storage permission granted");
                 onPickFile(null); // Retry file picking
             } else {
-                Toast.makeText(this, "Permission denied. Please enable it in Settings > Apps > [Your App Name] > Permissions.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Quyền bị từ chối. Vui lòng bật trong Cài đặt > Ứng dụng > [Tên ứng dụng] > Quyền.", Toast.LENGTH_LONG).show();
+                Log.w(TAG, "Storage permission denied");
             }
         }
     }
@@ -179,6 +196,7 @@ public class InternshipDetailsActivity extends AppCompatActivity {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                Log.e(TAG, "Error getting file name: " + e.getMessage());
             }
         }
         if (result == null) {
@@ -210,29 +228,31 @@ public class InternshipDetailsActivity extends AppCompatActivity {
                 outputStream.close();
                 inputStream.close();
                 selectedFileUri = Uri.fromFile(file); // Cập nhật Uri mới
+                Log.d(TAG, "File saved to: " + file.getAbsolutePath());
             }
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(this, "Failed to save file", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Không thể lưu file.", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Error saving file: " + e.getMessage());
         }
     }
 
     private void displayInternshipDetails() {
         textViewTitle.setText(internship.getTitle());
-        textViewCompany.setText("Company: " + internship.getCompany());
-        textViewDescription.setText("Description: " + internship.getDescription());
-        textViewRequirements.setText("Requirements: " + internship.getRequirements());
-        textViewStipend.setText("Stipend: " + (internship.getStipend() != null ? internship.getStipend() : "Not specified"));
-        textViewDeadline.setText("Deadline: " + internship.getDeadline());
+        textViewCompany.setText("Công ty: " + internship.getCompanyName());
+        textViewDescription.setText("Mô tả: " + internship.getDescription());
+        textViewRequirements.setText("Yêu cầu: " + internship.getRequirements());
+        textViewStipend.setText("Trợ cấp: " + (internship.getStipend() != null ? internship.getStipend() : "Không xác định"));
+        textViewDeadline.setText("Hạn nộp: " + internship.getDeadline());
     }
 
     private void checkApplicationStatus() {
         String status = dbHelper.getApplicationStatus(userId, internshipId);
         if (status != null) {
-            textViewStatus.setText("Status: " + status);
+            textViewStatus.setText("Trạng thái: " + status);
             buttonApply.setEnabled(false);
         } else {
-            textViewStatus.setText("Status: Not Applied");
+            textViewStatus.setText("Trạng thái: Chưa ứng tuyển");
             buttonApply.setEnabled(true);
         }
     }
@@ -240,12 +260,14 @@ public class InternshipDetailsActivity extends AppCompatActivity {
     private void applyForInternship(String resume) {
         String resumeUri = selectedFileUri != null ? selectedFileUri.toString() : resume;
         if (dbHelper.addApplication(userId, internshipId, resumeUri, "Pending")) {
-            Toast.makeText(this, "Application submitted successfully", Toast.LENGTH_SHORT).show();
-            textViewStatus.setText("Status: Pending");
+            Toast.makeText(this, "Đã nộp đơn ứng tuyển thành công.", Toast.LENGTH_SHORT).show();
+            textViewStatus.setText("Trạng thái: Đang chờ duyệt");
             buttonApply.setEnabled(false);
             selectedFileUri = null; // Reset after successful submission
+            Log.d(TAG, "Application submitted for user ID: " + userId + ", internship ID: " + internshipId);
         } else {
-            Toast.makeText(this, "Failed to submit application", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Không thể nộp đơn ứng tuyển.", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Failed to submit application for user ID: " + userId + ", internship ID: " + internshipId);
         }
     }
 

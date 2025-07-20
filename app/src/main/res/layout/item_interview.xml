@@ -13,7 +13,7 @@
         android:padding="8dp">
 
         <TextView
-            android:id="@+id/internship_title_textview"
+            android:id="@+id/interview_internship_title_textview"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textSize="18sp"
@@ -24,74 +24,68 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
         <TextView
-            android:id="@+id/company_name_textview"
+            android:id="@+id/interview_time_textview"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textSize="14sp"
             android:textColor="#757575"
-            app:layout_constraintTop_toBottomOf="@id/internship_title_textview"
+            app:layout_constraintTop_toBottomOf="@id/interview_internship_title_textview"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="4dp" />
 
         <TextView
-            android:id="@+id/status_textview"
+            android:id="@+id/interview_status_textview"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textSize="14sp"
             android:textColor="#757575"
-            app:layout_constraintTop_toBottomOf="@id/company_name_textview"
+            app:layout_constraintTop_toBottomOf="@id/interview_time_textview"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/withdraw_button"
-            android:layout_marginTop="4dp" />
-
-        <TextView
-            android:id="@+id/tvStudentId"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Student ID: "
-            android:textSize="14sp"
-            android:textColor="#757575"
-            app:layout_constraintTop_toBottomOf="@id/status_textview"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/confirm_button"
             android:layout_marginTop="4dp" />
 
         <Button
-            android:id="@+id/withdraw_button"
+            android:id="@+id/confirm_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Rút đơn"
+            android:text="Xác nhận"
+            android:textSize="14sp"
+            android:backgroundTint="#4CAF50"
+            android:textColor="#FFFFFF"
+            android:padding="8dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/interview_time_textview"
+            app:layout_constraintEnd_toStartOf="@id/decline_button"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/decline_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Từ chối"
             android:textSize="14sp"
             android:backgroundTint="#F44336"
             android:textColor="#FFFFFF"
             android:padding="8dp"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/company_name_textview"
-            app:layout_constraintEnd_toStartOf="@id/schedule_interview_button"
+            app:layout_constraintTop_toBottomOf="@id/interview_time_textview"
+            app:layout_constraintEnd_toStartOf="@id/propose_button"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="8dp" />
 
         <Button
-            android:id="@+id/schedule_interview_button"
+            android:id="@+id/propose_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Lên lịch phỏng vấn"
+            android:text="Đề xuất lại"
             android:textSize="14sp"
             android:backgroundTint="#2196F3"
             android:textColor="#FFFFFF"
             android:padding="8dp"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/company_name_textview"
-            app:layout_constraintEnd_toStartOf="@id/status_spinner"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="8dp" />
-
-        <Spinner
-            android:id="@+id/status_spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/company_name_textview"
+            app:layout_constraintTop_toBottomOf="@id/interview_time_textview"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="4dp" />
 

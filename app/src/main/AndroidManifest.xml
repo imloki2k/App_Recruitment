@@ -14,34 +14,21 @@
         android:theme="@style/Theme.IRRProject"
         tools:targetApi="31">
 
-        <activity
-            android:name=".LoginActivity"
+        <activity android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- Đăng ký người dùng -->
         <activity android:name=".RegisterActivity" />
-
-        <!-- Danh sách thực tập -->
         <activity android:name=".InternshipListingsActivity" />
-
-        <!-- Chi tiết thực tập -->
         <activity android:name=".InternshipDetailsActivity" />
-
-        <!-- Tạo thực tập (cho Recruiter) -->
-        <activity android:name=".CreateInternshipActivity" />
-
-        <!-- Bảng điều khiển Recruiter -->
+        <activity android:name=".MyApplicationsActivity" />
         <activity android:name=".RecruiterDashboardActivity" />
-
-        <!-- Chỉnh sửa thực tập -->
+        <activity android:name=".InterviewSchedulingActivity" />
         <activity android:name=".EditInternshipActivity" />
-
-        <activity android:name=".ProfileActivity" />
+        <activity android:name=".CreateInternshipActivity" />
 
     </application>
 </manifest>
