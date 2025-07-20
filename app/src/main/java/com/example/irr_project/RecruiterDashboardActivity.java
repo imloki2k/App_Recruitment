@@ -2,7 +2,9 @@ package com.example.irr_project;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +27,7 @@ public class RecruiterDashboardActivity extends AppCompatActivity {
     private List<Internship> internshipList;
     private InternshipAdapter internshipAdapter;
     private int companyId;
+    private Internship selectedInternship; // Lưu internship được chọn
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,13 +37,15 @@ public class RecruiterDashboardActivity extends AppCompatActivity {
         // Initialize UI components
         listViewInternships = findViewById(R.id.listViewInternships);
         Button buttonCreateInternship = findViewById(R.id.buttonCreateInternship);
+        Button scheduleInterviewButton = findViewById(R.id.buttonScheduleInterview);
 
         // Initialize DatabaseHelper
         dbHelper = new DatabaseHelper(this);
         dbHelper.getReadableDatabase();
 
-        // Get current company ID (placeholder logic)
-        companyId = getCurrentUserId(); // Replace with real implementation
+        // Get current company ID from SharedPreferences
+        companyId = getCurrentUserId();
+        Log.d("RecruiterDashboard", "Loaded companyId: " + companyId);
 
         // Load internships
         loadInternships();
@@ -51,17 +56,35 @@ public class RecruiterDashboardActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Set up ListView item click for edit
+        // Set up ListView item click to select internship
         listViewInternships.setOnItemClickListener((parent, view, position, id) -> {
-            Internship internship = internshipList.get(position);
-            Intent intent = new Intent(RecruiterDashboardActivity.this, EditInternshipActivity.class);
-            intent.putExtra("internshipId", internship.getId());
-            startActivity(intent);
+            selectedInternship = internshipList.get(position);
+            Toast.makeText(this, "Selected: " + selectedInternship.getTitle(), Toast.LENGTH_SHORT).show();
+        });
+
+        // Set up Schedule Interview button
+        scheduleInterviewButton.setOnClickListener(v -> {
+            if (selectedInternship != null) {
+                Intent intent = new Intent(RecruiterDashboardActivity.this, InterviewSchedulingActivity.class);
+                intent.putExtra("userId", companyId);
+                intent.putExtra("role", 1);
+                intent.putExtra("internshipId", selectedInternship.getId());
+                int applicationId = getApplicationIdForInternship(selectedInternship.getId());
+                if (applicationId != -1) {
+                    intent.putExtra("applicationId", applicationId);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(this, "No application found for this internship", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Please select an internship", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
     private void loadInternships() {
         internshipList = dbHelper.getInternshipsByCompanyId(companyId);
+        Log.d("RecruiterDashboard", "Loaded " + (internshipList != null ? internshipList.size() : 0) + " internships for companyId: " + companyId);
         if (internshipList == null || internshipList.isEmpty()) {
             Toast.makeText(this, "No internships available", Toast.LENGTH_SHORT).show();
             internshipList = new ArrayList<>();
@@ -76,13 +99,15 @@ public class RecruiterDashboardActivity extends AppCompatActivity {
         loadInternships(); // Refresh list when returning
     }
 
-    // Placeholder method to get current user ID
     private int getCurrentUserId() {
-        // This should fetch the logged-in recruiter's user ID from shared preferences or intent
-        return 2; // Replace with real implementation
+        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        return prefs.getInt("userId", -1);
     }
 
-    // Custom ArrayAdapter for ListView
+    private int getApplicationIdForInternship(int internshipId) {
+        return dbHelper.getApplicationIdForCompany(companyId, internshipId);
+    }
+
     public static class InternshipAdapter extends ArrayAdapter<Internship> {
         private List<Internship> internshipList;
         private Context context;

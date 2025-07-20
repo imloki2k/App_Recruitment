@@ -47,8 +47,8 @@ public class LoginActivity extends AppCompatActivity {
             // Check credentials and get role from database
             String role = dbHelper.getUserRole(email, password);
             if (role != null) {
-                // Get userId from database (placeholder logic)
-                int userId = getUserIdFromEmail(email); // Cần triển khai phương thức này
+                // Get userId from database
+                int userId = getUserIdFromEmail(email);
                 if (userId != -1) {
                     // Save userId to SharedPreferences
                     SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
@@ -57,13 +57,16 @@ public class LoginActivity extends AppCompatActivity {
                     editor.apply();
 
                     Toast.makeText(this, "Login successful as " + role, Toast.LENGTH_SHORT).show();
-                    // Navigate to appropriate dashboard
+                    // Navigate to appropriate dashboard with Intent extras
                     Intent intent;
-                    if (role.equals("student")) {
+                    int roleInt = "student".equals(role) ? 0 : 1;
+                    if ("student".equals(role)) {
                         intent = new Intent(LoginActivity.this, InternshipListingsActivity.class);
                     } else {
                         intent = new Intent(LoginActivity.this, RecruiterDashboardActivity.class);
                     }
+                    intent.putExtra("userId", userId);
+                    intent.putExtra("role", roleInt);
                     startActivity(intent);
                     finish();
                 } else {
@@ -100,10 +103,8 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    // Placeholder method to get userId from email
+    // Method to get userId from email
     private int getUserIdFromEmail(String email) {
-        // Implement logic to query userId from TABLE_USERS based on email
-        // This is a placeholder; replace with actual database query
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String[] columns = {DatabaseHelper.COL_USER_ID};
         String selection = DatabaseHelper.COL_EMAIL + "=?";

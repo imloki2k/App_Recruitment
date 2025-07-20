@@ -111,7 +111,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_APPLICATION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_STUDENT_ID + " INTEGER NOT NULL, " +
                 COL_INTERNSHIP_ID + " INTEGER NOT NULL, " +
-                COL_RESUME + " TEXT, " + // Lưu Uri hoặc đường dẫn file
+                COL_RESUME + " TEXT, " +
                 COL_STATUS + " TEXT NOT NULL CHECK(" + COL_STATUS + " IN ('Pending', 'Accepted', 'Rejected', 'Under Review')), " +
                 "FOREIGN KEY(" + COL_STUDENT_ID + ") REFERENCES " + TABLE_USERS + "(" + COL_USER_ID + "), " +
                 "FOREIGN KEY(" + COL_INTERNSHIP_ID + ") REFERENCES " + TABLE_INTERNSHIPS + "(" + COL_INTERNSHIP_ID + "));";
@@ -155,6 +155,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("INSERT INTO users (email, password, role, name, university) VALUES ('student1@example.com', 'pass123', 'student', 'Nguyen Van A', 'Hanoi University');");
         db.execSQL("INSERT INTO users (email, password, role, name, company) VALUES ('recruiter1@example.com', 'pass789', 'recruiter', 'FPT Software', 'FPT Corporation');");
         db.execSQL("INSERT INTO internships (title, company_id, location, duration, field, description, requirements, stipend, deadline, date_posted) VALUES ('Android Developer Intern', 2, 'Hanoi', '3 months', 'IT', 'Develop Android apps', 'Java/Kotlin', '5000000 VND', '2025-08-01', '2025-07-01');");
+        db.execSQL("INSERT INTO applications (student_id, internship_id, status) VALUES (1, 1, 'Accepted');");
+        db.execSQL("INSERT INTO interviews (application_id, student_id, company_id, time, status_interview) VALUES (1, 1, 2, '2025-07-25 10:00', 'Proposed');");
     }
 
     @Override
@@ -187,7 +189,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COL_STUDENT_ID, studentId);
         values.put(COL_INTERNSHIP_ID, internshipId);
-        values.put(COL_RESUME, resumeUri); // Lưu Uri hoặc đường dẫn file
+        values.put(COL_RESUME, resumeUri);
         values.put(COL_STATUS, status);
         long result = db.insert(TABLE_APPLICATIONS, null, values);
         return result != -1;
@@ -207,7 +209,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return resumeUri;
     }
 
-    // Existing methods (getUserRole, getAllInternships, etc.) remain unchanged
     public String getUserRole(String email, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
         String[] columns = {COL_ROLE};
@@ -386,6 +387,176 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         if (db != null && db.isOpen()) {
             db.close();
+        }
+    }
+
+    public List<String> getProposedInterviews(int studentId, int interviewId) {
+        List<String> times = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COL_TIME};
+        String selection = COL_STUDENT_ID + "=? AND " + COL_INTERVIEW_ID + "=? AND " + COL_STATUS_INTERVIEW + "=?";
+        String[] selectionArgs = {String.valueOf(studentId), String.valueOf(interviewId), "Proposed"};
+        Cursor cursor = db.query(TABLE_INTERVIEWS, columns, selection, selectionArgs, null, null, null);
+        while (cursor.moveToNext()) {
+            times.add(cursor.getString(cursor.getColumnIndexOrThrow(COL_TIME)));
+        }
+        cursor.close();
+        return times;
+    }
+
+    public boolean proposeInterview(int applicationId, int studentId, int companyId, String time) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_APPLICATION_ID, applicationId);
+        values.put(COL_STUDENT_ID, studentId);
+        values.put(COL_COMPANY_ID, companyId);
+        values.put(COL_TIME, time);
+        values.put(COL_STATUS_INTERVIEW, "Proposed");
+        long result = db.insert(TABLE_INTERVIEWS, null, values);
+        return result != -1;
+    }
+
+    public boolean updateInterviewStatus(int interviewId, String status, String time) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_STATUS_INTERVIEW, status);
+        if (time != null) {
+            values.put(COL_TIME, time);
+        }
+        String whereClause = COL_INTERVIEW_ID + "=?";
+        String[] whereArgs = {String.valueOf(interviewId)};
+        int result = db.update(TABLE_INTERVIEWS, values, whereClause, whereArgs);
+        return result > 0;
+    }
+
+    public boolean insertNotification(int userId, String message, String type) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_USER_ID_NOTIF, userId);
+        values.put(COL_MESSAGE, message);
+        values.put(COL_TYPE, type);
+        values.put(COL_READ, 0);
+        long result = db.insert(TABLE_NOTIFICATIONS, null, values);
+        return result != -1;
+    }
+
+    public int getStudentIdFromApplication(int applicationId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COL_STUDENT_ID};
+        String selection = COL_APPLICATION_ID + "=?";
+        String[] selectionArgs = {String.valueOf(applicationId)};
+        Cursor cursor = db.query(TABLE_APPLICATIONS, columns, selection, selectionArgs, null, null, null);
+        int studentId = -1;
+        if (cursor.moveToFirst()) {
+            studentId = cursor.getInt(cursor.getColumnIndexOrThrow(COL_STUDENT_ID));
+        }
+        cursor.close();
+        return studentId;
+    }
+
+    public int getCompanyIdFromInterview(int interviewId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COL_COMPANY_ID};
+        String selection = COL_INTERVIEW_ID + "=?";
+        String[] selectionArgs = {String.valueOf(interviewId)};
+        Cursor cursor = db.query(TABLE_INTERVIEWS, columns, selection, selectionArgs, null, null, null);
+        int companyId = -1;
+        if (cursor.moveToFirst()) {
+            companyId = cursor.getInt(cursor.getColumnIndexOrThrow(COL_COMPANY_ID));
+        }
+        cursor.close();
+        return companyId;
+    }
+
+    public int getInterviewIdForUser(int userId, int internshipId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COL_INTERVIEW_ID};
+        String selection = COL_STUDENT_ID + "=? AND " + COL_APPLICATION_ID + " IN (SELECT " + COL_APPLICATION_ID + " FROM " + TABLE_APPLICATIONS + " WHERE " + COL_STUDENT_ID + "=? AND " + COL_INTERNSHIP_ID + "=?)";
+        String[] selectionArgs = {String.valueOf(userId), String.valueOf(userId), String.valueOf(internshipId)};
+        Cursor cursor = db.query(TABLE_INTERVIEWS, columns, selection, selectionArgs, null, null, null);
+        int id = -1;
+        if (cursor.moveToFirst()) {
+            id = cursor.getInt(cursor.getColumnIndexOrThrow(COL_INTERVIEW_ID));
+        }
+        cursor.close();
+        return id;
+    }
+
+    public int getApplicationIdForUser(int userId, int internshipId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COL_APPLICATION_ID};
+        String selection = COL_STUDENT_ID + "=? AND " + COL_INTERNSHIP_ID + "=?";
+        String[] selectionArgs = {String.valueOf(userId), String.valueOf(internshipId)};
+        Cursor cursor = db.query(TABLE_APPLICATIONS, columns, selection, selectionArgs, null, null, null);
+        int id = -1;
+        if (cursor.moveToFirst()) {
+            id = cursor.getInt(cursor.getColumnIndexOrThrow(COL_APPLICATION_ID));
+        }
+        cursor.close();
+        return id;
+    }
+
+    public int getApplicationIdForCompany(int companyId, int internshipId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COL_APPLICATION_ID};
+        String selection = COL_INTERNSHIP_ID + "=? AND " + COL_STUDENT_ID + " IN (SELECT " + COL_USER_ID + " FROM " + TABLE_USERS + " WHERE " + COL_ROLE + "='student') AND " +
+                COL_INTERNSHIP_ID + " IN (SELECT " + COL_INTERNSHIP_ID + " FROM " + TABLE_INTERNSHIPS + " WHERE " + COL_COMPANY_ID + "=?)";
+        String[] selectionArgs = {String.valueOf(internshipId), String.valueOf(companyId)};
+        Cursor cursor = db.query(TABLE_APPLICATIONS, columns, selection, selectionArgs, null, null, null);
+        int id = -1;
+        if (cursor.moveToFirst()) {
+            id = cursor.getInt(cursor.getColumnIndexOrThrow(COL_APPLICATION_ID));
+        }
+        cursor.close();
+        return id;
+    }
+
+    // New method to get all applications for an internship
+    public List<ApplicationInfo> getApplicationsForInternship(int internshipId, int companyId) {
+        List<ApplicationInfo> applications = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COL_APPLICATION_ID, COL_STUDENT_ID};
+        String selection = COL_INTERNSHIP_ID + "=? AND " + COL_INTERNSHIP_ID + " IN (SELECT " + COL_INTERNSHIP_ID + " FROM " + TABLE_INTERNSHIPS + " WHERE " + COL_COMPANY_ID + "=?)";
+        String[] selectionArgs = {String.valueOf(internshipId), String.valueOf(companyId)};
+        Cursor cursor = db.query(TABLE_APPLICATIONS, columns, selection, selectionArgs, null, null, null);
+        while (cursor.moveToNext()) {
+            int applicationId = cursor.getInt(cursor.getColumnIndexOrThrow(COL_APPLICATION_ID));
+            int studentId = cursor.getInt(cursor.getColumnIndexOrThrow(COL_STUDENT_ID));
+            String studentName = getStudentName(db, studentId);
+            applications.add(new ApplicationInfo(applicationId, studentId, studentName));
+        }
+        cursor.close();
+        return applications;
+    }
+
+    private String getStudentName(SQLiteDatabase db, int studentId) {
+        String[] columns = {COL_NAME};
+        String selection = COL_USER_ID + "=?";
+        String[] selectionArgs = {String.valueOf(studentId)};
+        Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null);
+        String studentName = "Unknown";
+        if (cursor.moveToFirst()) {
+            studentName = cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME));
+        }
+        cursor.close();
+        return studentName;
+    }
+
+    // Helper class to store application info
+    public static class ApplicationInfo {
+        public int applicationId;
+        public int studentId;
+        public String studentName;
+
+        public ApplicationInfo(int applicationId, int studentId, String studentName) {
+            this.applicationId = applicationId;
+            this.studentId = studentId;
+            this.studentName = studentName;
+        }
+
+        @Override
+        public String toString() {
+            return studentName + " (ID: " + applicationId + ")";
         }
     }
 }

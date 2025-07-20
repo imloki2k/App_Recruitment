@@ -48,5 +48,10 @@
 
         <activity android:name=".ProfileActivity" />
 
+        <activity
+            android:name=".InterviewSchedulingActivity"
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
+        </activity>
+
     </application>
 </manifest>
