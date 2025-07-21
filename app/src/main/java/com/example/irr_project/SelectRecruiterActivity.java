@@ -23,7 +23,7 @@ public class SelectRecruiterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_recruiter);
-
+        getSupportActionBar().hide();
         listViewRecruiters = findViewById(R.id.listViewRecruiters);
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, recruiterDisplayNames);
         listViewRecruiters.setAdapter(adapter);

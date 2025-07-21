@@ -44,6 +44,14 @@ public class InternshipListingsActivity extends AppCompatActivity {
             checkBoxSortByDate = findViewById(R.id.checkBoxSortByDate);
             findViewById(R.id.buttonApplications).setOnClickListener(v -> goToMyApplications());
             findViewById(R.id.buttonLogout).setOnClickListener(v -> logout()); // Thêm nút Đăng xuất
+            findViewById(R.id.buttonMessage).setOnClickListener(v -> {
+                Intent intent = new Intent(this, SelectRecruiterActivity.class);
+                startActivity(intent);
+            });
+            findViewById(R.id.buttonMap).setOnClickListener(v -> {
+                Intent intent = new Intent(this, MapsActivity.class);
+                startActivity(intent);
+            });
 
             if (recyclerViewInternships == null || spinnerFilter == null || checkBoxSortByDate == null) {
                 Log.e(TAG, "Không tìm thấy một hoặc nhiều thành phần giao diện");

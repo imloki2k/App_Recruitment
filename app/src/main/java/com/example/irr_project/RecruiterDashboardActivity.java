@@ -42,6 +42,10 @@ public class RecruiterDashboardActivity extends AppCompatActivity {
         notificationBadge = findViewById(R.id.notificationBadge);
         findViewById(R.id.buttonCreateInternship).setOnClickListener(v -> goToCreateInternship());
         findViewById(R.id.buttonLogout).setOnClickListener(v -> logout()); // Thêm nút Đăng xuất
+        findViewById(R.id.buttonMessage).setOnClickListener(v -> {
+            Intent intent = new Intent(this, SelectStudentActivity.class);
+            startActivity(intent);
+        });
 
         if (recyclerViewApplications == null || notificationBadge == null) {
             Log.e(TAG, "Không tìm thấy RecyclerView hoặc notificationBadge");

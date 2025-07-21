@@ -634,4 +634,128 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         return notifications;
     }
+
+    public List<Recruiter> getAllRecruiters() {
+        List<Recruiter> recruiters = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COL_USER_ID, COL_EMAIL, COL_NAME, COL_COMPANY};
+        String selection = COL_ROLE + "=?";
+        String[] selectionArgs = {"recruiter"};
+        Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null);
+
+        while (cursor.moveToNext()) {
+            int id = cursor.getInt(cursor.getColumnIndexOrThrow(COL_USER_ID));
+            String email = cursor.getString(cursor.getColumnIndexOrThrow(COL_EMAIL));
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME));
+            String company = cursor.getString(cursor.getColumnIndexOrThrow(COL_COMPANY));
+
+            recruiters.add(new Recruiter(id, email, name, company));
+        }
+        cursor.close();
+        db.close();
+        return recruiters;
+    }
+
+    public String getRecruiterEmailById(int recruiterId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COL_EMAIL};
+        String selection = COL_USER_ID + "=? AND " + COL_ROLE + "=?";
+        String[] selectionArgs = {String.valueOf(recruiterId), "recruiter"};
+        Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null);
+
+        String email = null;
+        if (cursor.moveToFirst()) {
+            email = cursor.getString(cursor.getColumnIndexOrThrow(COL_EMAIL));
+        }
+        cursor.close();
+        db.close();
+        return email;
+    }
+
+
+    public String getStudentEmailById(int studentId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COL_EMAIL};
+        String selection = COL_USER_ID + "=? AND " + COL_ROLE + "=?";
+        String[] selectionArgs = {String.valueOf(studentId), "student"};
+        Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null);
+
+        String email = null;
+        if (cursor.moveToFirst()) {
+            email = cursor.getString(cursor.getColumnIndexOrThrow(COL_EMAIL));
+        }
+        cursor.close();
+        db.close();
+        return email;
+    }
+
+    public List<Student> getAllStudents() {
+        List<Student> students = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COL_USER_ID, COL_EMAIL, COL_NAME, COL_UNIVERSITY};
+        String selection = COL_ROLE + "=?";
+        String[] selectionArgs = {"student"};
+        Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null);
+
+        while (cursor.moveToNext()) {
+            int id = cursor.getInt(cursor.getColumnIndexOrThrow(COL_USER_ID));
+            String email = cursor.getString(cursor.getColumnIndexOrThrow(COL_EMAIL));
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME));
+            String university = cursor.getString(cursor.getColumnIndexOrThrow(COL_UNIVERSITY));
+
+            students.add(new Student(id, email, name, university));
+        }
+        cursor.close();
+        db.close();
+        return students;
+    }
+
+    public static class Student {
+        private int id;
+        private String email;
+        private String name;
+        private String university;
+
+        public Student(int id, String email, String name, String university) {
+            this.id = id;
+            this.email = email;
+            this.name = name;
+            this.university = university;
+        }
+
+        public int getId() { return id; }
+        public String getEmail() { return email; }
+        public String getName() { return name; }
+        public String getUniversity() { return university; }
+
+        @Override
+        public String toString() {
+            return email + " - " + name + " (" + university + ")";
+        }
+    }
+
+    // Inner class for Recruiter
+    public static class Recruiter {
+        private int id;
+        private String email;
+        private String name;
+        private String company;
+
+        public Recruiter(int id, String email, String name, String company) {
+            this.id = id;
+            this.email = email;
+            this.name = name;
+            this.company = company;
+        }
+
+        public int getId() { return id; }
+        public String getEmail() { return email; }
+        public String getName() { return name; }
+        public String getCompany() { return company; }
+
+        @Override
+        public String toString() {
+            return email + " - " + name + " (" + company + ")";
+        }
+    }
 }

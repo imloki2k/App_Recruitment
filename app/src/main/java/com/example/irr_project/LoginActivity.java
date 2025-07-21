@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.irr_project.database.DatabaseHelper;
+import com.example.irr_project.utils.UserSession;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -70,6 +71,7 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putInt(KEY_USER_ID, userId);
                             editor.putString(KEY_USER_ROLE, role);
                             editor.apply();
+                            new UserSession(getApplicationContext()).setUserLoggedIn(email, role);
 
                             Toast.makeText(this, "Đăng nhập thành công với vai trò " + role, Toast.LENGTH_SHORT).show();
 

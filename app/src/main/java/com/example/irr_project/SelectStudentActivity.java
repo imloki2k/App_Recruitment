@@ -23,7 +23,7 @@ public class SelectStudentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_student);
-
+        getSupportActionBar().hide();
         listViewStudents = findViewById(R.id.listViewStudents);
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, studentDisplayNames);
         listViewStudents.setAdapter(adapter);
