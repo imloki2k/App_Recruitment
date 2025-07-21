@@ -10,13 +10,13 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp">
+        android:padding="12dp">
 
         <TextView
             android:id="@+id/internship_title_textview"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="#212121"
             app:layout_constraintTop_toTopOf="parent"
@@ -47,13 +47,14 @@
 
         <TextView
             android:id="@+id/tvStudentId"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Student ID: "
             android:textSize="14sp"
             android:textColor="#757575"
             app:layout_constraintTop_toBottomOf="@id/status_textview"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="4dp" />
 
         <Button
@@ -61,7 +62,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Rút đơn"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:backgroundTint="#F44336"
             android:textColor="#FFFFFF"
             android:padding="8dp"
@@ -76,7 +77,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Lên lịch phỏng vấn"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:backgroundTint="#2196F3"
             android:textColor="#FFFFFF"
             android:padding="8dp"
@@ -94,6 +95,5 @@
             app:layout_constraintTop_toBottomOf="@id/company_name_textview"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="4dp" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

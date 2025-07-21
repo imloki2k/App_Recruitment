@@ -2,12 +2,13 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="72dp">
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="8dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -23,8 +24,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Internship Title"
-            android:padding="8dp"
-            android:layout_marginTop="8dp"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edittext_background"
             android:minHeight="48dp"/>
 
         <EditText
@@ -32,8 +34,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Location"
-            android:padding="8dp"
-            android:layout_marginTop="8dp"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edittext_background"
             android:minHeight="48dp"/>
 
         <EditText
@@ -41,8 +44,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Duration (e.g., 3 months)"
-            android:padding="8dp"
-            android:layout_marginTop="8dp"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edittext_background"
             android:minHeight="48dp"/>
 
         <EditText
@@ -50,8 +54,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Field (e.g., IT, Marketing)"
-            android:padding="8dp"
-            android:layout_marginTop="8dp"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edittext_background"
             android:minHeight="48dp"/>
 
         <EditText
@@ -59,8 +64,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Description"
-            android:padding="8dp"
-            android:layout_marginTop="8dp"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edittext_background"
             android:minLines="3" />
 
         <EditText
@@ -68,8 +74,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Requirements"
-            android:padding="8dp"
-            android:layout_marginTop="8dp"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edittext_background"
             android:minLines="2" />
 
         <EditText
@@ -77,8 +84,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Stipend (e.g., $500)"
-            android:padding="8dp"
-            android:layout_marginTop="8dp"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edittext_background"
             android:minHeight="48dp"/>
 
         <EditText
@@ -86,8 +94,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Deadline (e.g., 2025-08-01)"
-            android:padding="8dp"
-            android:layout_marginTop="8dp"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edittext_background"
             android:minHeight="48dp" />
 
         <Button
@@ -95,8 +104,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Update Internship"
-            android:layout_marginTop="16dp"
-            android:padding="8dp" />
-
+            android:layout_marginTop="24dp"
+            android:backgroundTint="#6200EE"
+            android:textColor="#FFFFFF"
+            android:padding="12dp"
+            android:layout_gravity="center" />
     </LinearLayout>
 </ScrollView>

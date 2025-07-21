@@ -91,6 +91,16 @@ public class RecruiterDashboardActivity extends AppCompatActivity {
 
             @Override
             public void onStatusChange(Application application, int position, String newStatus) {
+                if (newStatus.equals(Application.Status.WITHDRAWN.toString())) {
+                    Toast.makeText(RecruiterDashboardActivity.this, "Nhà tuyển dụng không thể đặt trạng thái 'Withdrawn'.", Toast.LENGTH_SHORT).show();
+                    Log.w(TAG, "Recruiter attempted to set 'Withdrawn' status for application ID: " + application.getApplicationId());
+                    return;
+                }
+                if (newStatus.equals(Application.Status.PENDING.toString())) {
+                    Toast.makeText(RecruiterDashboardActivity.this, "Nhà tuyển dụng không thể đặt trạng thái 'Pending'.", Toast.LENGTH_SHORT).show();
+                    Log.w(TAG, "Recruiter attempted to set 'Pending' status for application ID: " + application.getApplicationId());
+                    return;
+                }
                 if (application.getStatus().equals(Application.Status.WITHDRAWN.toString())) {
                     Toast.makeText(RecruiterDashboardActivity.this, "Không thể thay đổi trạng thái đơn đã rút.", Toast.LENGTH_SHORT).show();
                     Log.w(TAG, "Cannot change status of withdrawn application ID: " + application.getApplicationId());

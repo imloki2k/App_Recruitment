@@ -8,16 +8,16 @@
 
     <TextView
         android:id="@+id/tv_no_interviews"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:text="Không có lịch phỏng vấn nào."
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textColor="#757575"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_interviews"
@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:hint="Nhập thời gian phỏng vấn (VD: 2025-07-21 10:00)"
         android:inputType="datetime"
-        android:background="@android:drawable/edit_text"
+        android:background="@drawable/edittext_background"
         android:textSize="16sp"
         android:padding="12dp"
         android:visibility="gone"
@@ -45,7 +45,7 @@
 
     <Button
         android:id="@+id/btn_submit_time"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Đề xuất thời gian"
         android:textSize="16sp"
@@ -57,5 +57,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintVertical_bias="0.9" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
