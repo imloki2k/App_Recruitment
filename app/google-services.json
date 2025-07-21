@@ -1,14 +1,14 @@
 {
   "project_info": {
-    "project_number": "243995112858",
-    "firebase_url": "https://support-e4b8c-default-rtdb.asia-southeast1.firebasedatabase.app",
-    "project_id": "support-e4b8c",
-    "storage_bucket": "support-e4b8c.firebasestorage.app"
+    "project_number": "741579691189",
+    "firebase_url": "https://irr-project-16159-default-rtdb.firebaseio.com",
+    "project_id": "irr-project-16159",
+    "storage_bucket": "irr-project-16159.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:243995112858:android:19bfb02b8323bc8dbbb623",
+        "mobilesdk_app_id": "1:741579691189:android:ed04879551267279bb9afc",
         "android_client_info": {
           "package_name": "com.example.irr_project"
         }
@@ -16,7 +16,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC-me5z6uQ5KVKZaPPoqu0BfnLVb5VDSrg"
+          "current_key": "AIzaSyAFsXfKGyEId-vT63-D8dq2doBylatMTfE"
         }
       ],
       "services": {
