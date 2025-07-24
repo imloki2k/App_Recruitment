@@ -18,6 +18,7 @@ public class CreateInternshipActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().hide();
         setContentView(R.layout.create_internship);
 
         // Initialize UI components
