@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">IRR-Project</string>
+    <string-array name="fields_array">
+        <item>All</item>
+        <item>IT</item>
+        <item>Marketing</item>
+        <item>Design</item>
+        <item>Business</item>
+    </string-array>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="title_activity_maps">MapsActivity</string>
+
+</resources>
