@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp"
+    android:background="@android:color/white">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sign Up"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:padding="8dp" />
+
+    <EditText
+        android:id="@+id/editTextEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Email"
+        android:inputType="textEmailAddress"
+        android:layout_marginTop="16dp"
+        android:minHeight="48dp"
+        android:padding="8dp" />
+
+    <EditText
+        android:id="@+id/editTextPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:layout_marginTop="16dp"
+        android:minHeight="48dp"
+        android:padding="8dp" />
+
+    <EditText
+        android:id="@+id/editTextName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Name"
+        android:layout_marginTop="16dp"
+        android:minHeight="48dp"
+        android:padding="8dp" />
+
+    <EditText
+        android:id="@+id/editTextUniversityOrCompany"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="University (Student) or Company (Recruiter)"
+        android:layout_marginTop="16dp"
+        android:minHeight="48dp"
+        android:padding="8dp" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupRole"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp">
+
+        <RadioButton
+            android:id="@+id/radioStudent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Student"
+            android:padding="8dp"
+            android:minHeight="48dp" />
+
+        <RadioButton
+            android:id="@+id/radioRecruiter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recruiter"
+            android:padding="8dp"
+            android:minHeight="48dp" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/buttonRegister"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="SIGN UP"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/purple_500"
+        android:minHeight="48dp"
+        android:padding="12dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Already have an account? Login"
+        android:layout_marginTop="16dp"
+        android:textColor="@android:color/darker_gray"
+        android:onClick="goToLogin"
+        android:clickable="true"
+        android:padding="12dp"
+        android:minHeight="48dp"
+        android:background="?attr/selectableItemBackground" />
+</LinearLayout>

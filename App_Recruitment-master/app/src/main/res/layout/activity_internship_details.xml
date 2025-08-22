@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/textViewTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:padding="8dp"
+        android:minHeight="48dp" />
+
+    <TextView
+        android:id="@+id/textViewCompany"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:padding="4dp" />
+
+    <TextView
+        android:id="@+id/textViewDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:padding="4dp"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/textViewRequirements"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:padding="4dp" />
+
+    <TextView
+        android:id="@+id/textViewStipend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:padding="4dp" />
+
+    <TextView
+        android:id="@+id/textViewDeadline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:padding="4dp" />
+
+    <EditText
+        android:id="@+id/editTextResume"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter your resume"
+        android:layout_marginTop="16dp"
+        android:minHeight="48dp"
+        android:padding="8dp" />
+
+    <Button
+        android:id="@+id/buttonApply"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="APPLY"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/purple_500"
+        android:minHeight="48dp"
+        android:padding="12dp" />
+
+    <TextView
+        android:id="@+id/textViewStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:padding="4dp"
+        android:layout_marginTop="8dp" />
+</LinearLayout>

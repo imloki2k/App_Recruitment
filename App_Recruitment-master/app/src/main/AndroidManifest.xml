@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.IRRProject"
+        tools:targetApi="31">
+
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Đăng ký người dùng -->
+        <activity android:name=".RegisterActivity" />
+
+        <!-- Danh sách thực tập -->
+        <activity android:name=".InternshipListingsActivity" />
+
+        <!-- Chi tiết thực tập -->
+        <activity android:name=".InternshipDetailsActivity" />
+
+        <!-- Lịch phỏng vấn -->
+        <activity android:name=".InterviewScheduleActivity" />
+
+        <!-- Dashboard nhà tuyển dụng -->
+        <activity android:name=".RecruiterDashboardActivity" />
+
+        <!-- Thông báo -->
+        <activity android:name=".NotificationsActivity" />
+
+        <!-- Ứng tuyển - danh sách cho recruiter -->
+        <activity android:name=".RecruiterApplicationsActivity" />
+
+        <!-- Danh sách phỏng vấn -->
+        <activity android:name=".InterviewListActivity" />
+
+    </application>
+</manifest>
