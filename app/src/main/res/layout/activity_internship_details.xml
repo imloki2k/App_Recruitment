@@ -94,27 +94,27 @@
         android:id="@+id/buttonUploadFile"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Upload Resume File"
         android:layout_marginTop="8dp"
-        android:backgroundTint="#6200EE"
-        android:textColor="#FFFFFF"
+        android:backgroundTint="#FFA5D6A7"
         android:padding="12dp"
-        app:layout_constraintTop_toBottomOf="@id/editTextResume"
+        android:text="Upload Resume File"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/editTextResume" />
 
     <Button
         android:id="@+id/buttonApply"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="APPLY"
         android:layout_marginTop="16dp"
-        android:backgroundTint="#6200EE"
-        android:textColor="#FFFFFF"
+        android:backgroundTint="#FFA5D6A7"
         android:padding="12dp"
-        app:layout_constraintTop_toBottomOf="@id/buttonUploadFile"
+        android:text="APPLY"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/buttonUploadFile" />
 
     <TextView
         android:id="@+id/textViewStatus"

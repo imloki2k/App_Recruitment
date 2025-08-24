@@ -106,14 +106,14 @@
         android:id="@+id/buttonRegister"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="SIGN UP"
         android:layout_marginTop="24dp"
-        android:backgroundTint="#6200EE"
-        android:textColor="#FFFFFF"
+        android:backgroundTint="#FFA5D6A7"
         android:padding="12dp"
-        app:layout_constraintTop_toBottomOf="@id/radioGroupRole"
+        android:text="SIGN UP"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/radioGroupRole" />
 
     <TextView
         android:id="@+id/loginText"

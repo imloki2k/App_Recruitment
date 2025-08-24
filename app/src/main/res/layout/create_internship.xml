@@ -103,11 +103,12 @@
             android:id="@+id/buttonSaveInternship"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save Internship"
             android:layout_gravity="center"
             android:layout_marginTop="24dp"
-            android:backgroundTint="#6200EE"
+            android:backgroundTint="#FFA5D6A7"
+            android:padding="12dp"
+            android:text="Save Internship"
             android:textColor="#FFFFFF"
-            android:padding="12dp" />
+            android:textColorLink="#FFA5D6A7" />
     </LinearLayout>
 </ScrollView>
