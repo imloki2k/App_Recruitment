@@ -213,7 +213,6 @@ public class InternshipDetailsActivity extends AppCompatActivity {
 
     // Method to save file to internal storage
     private void saveFileToInternalStorage(Uri fileUri) {
-        buttonApply.setEnabled(true);
         try {
             InputStream inputStream = getContentResolver().openInputStream(fileUri);
             if (inputStream != null) {
@@ -251,9 +250,10 @@ public class InternshipDetailsActivity extends AppCompatActivity {
         String status = dbHelper.getApplicationStatus(userId, internshipId);
         if (status != null) {
             textViewStatus.setText("Trạng thái: " + status);
-            if (!"Rejected".equals(status)) {
-                buttonApply.setEnabled(false);
-            }
+            buttonApply.setEnabled(false);
+        } else {
+            textViewStatus.setText("Trạng thái: Chưa ứng tuyển");
+            buttonApply.setEnabled(true);
         }
     }
 
