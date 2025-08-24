@@ -30,10 +30,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         try {
             setContentView(R.layout.activity_login);
-            // Set custom title
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setTitle("Đăng nhập"); // or "Register" for RegisterActivity
-            }
+
             // Khởi tạo giao diện
             editTextEmail = findViewById(R.id.editTextEmail);
             editTextPassword = findViewById(R.id.editTextPassword);

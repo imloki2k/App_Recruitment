@@ -32,10 +32,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forgot_password);
-        // Set custom title
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Đặt lại mật khẩu"); // or "Register" for RegisterActivity
-        }
+
         // Initialize UI components
         editTextResetEmail = findViewById(R.id.editTextResetEmail);
         editTextVerificationCode = findViewById(R.id.editTextVerificationCode);

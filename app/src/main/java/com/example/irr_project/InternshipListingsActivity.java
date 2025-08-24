@@ -30,7 +30,7 @@ public class InternshipListingsActivity extends AppCompatActivity {
     private Spinner spinnerFilter;
     private CheckBox checkBoxSortByDate;
     private int currentStudentId = -1;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,7 +43,7 @@ public class InternshipListingsActivity extends AppCompatActivity {
             spinnerFilter = findViewById(R.id.spinnerFilter);
             checkBoxSortByDate = findViewById(R.id.checkBoxSortByDate);
             findViewById(R.id.buttonApplications).setOnClickListener(v -> goToMyApplications());
-            findViewById(R.id.buttonLogout).setOnClickListener(v -> logout());
+            findViewById(R.id.buttonLogout).setOnClickListener(v -> logout()); // Thêm nút Đăng xuất
             findViewById(R.id.buttonMessage).setOnClickListener(v -> {
                 Intent intent = new Intent(this, SelectRecruiterActivity.class);
                 startActivity(intent);
@@ -68,7 +68,7 @@ public class InternshipListingsActivity extends AppCompatActivity {
                 return;
             }
 
-            // Khởi tạo database và adapter
+            // Khởi tạo DatabaseHelper
             dbHelper = new DatabaseHelper(this);
             internshipList = new ArrayList<>();
             recyclerViewInternships.setLayoutManager(new LinearLayoutManager(this));
@@ -80,10 +80,13 @@ public class InternshipListingsActivity extends AppCompatActivity {
             });
             recyclerViewInternships.setAdapter(internshipAdapter);
 
-            // Setup spinner with dynamic fields
-            setupSpinner();
+            // Thiết lập Spinner
+            String[] fields = {"Tất cả", "IT", "Marketing", "Data Science"};
+            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, fields);
+            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerFilter.setAdapter(spinnerAdapter);
 
-            // Thiết lập sự kiện
+            // Xử lý sự kiện chọn Spinner
             spinnerFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -93,13 +96,43 @@ public class InternshipListingsActivity extends AppCompatActivity {
                 public void onNothingSelected(AdapterView<?> parent) {}
             });
 
+            // Xử lý sự kiện CheckBox sắp xếp
             checkBoxSortByDate.setOnCheckedChangeListener((buttonView, isChecked) -> filterInternships());
 
-            // Tải dữ liệu ban đầu
+            // Tải danh sách thực tập
             filterInternships();
         } catch (Exception e) {
             Log.e(TAG, "Lỗi khởi tạo InternshipListingsActivity: ", e);
-            Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Lỗi khởi tạo: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void filterInternships() {
+        try {
+            String selectedField = spinnerFilter.getSelectedItem() != null ? spinnerFilter.getSelectedItem().toString() : "Tất cả";
+            boolean sortByDate = checkBoxSortByDate.isChecked();
+            String field = selectedField.equals("Tất cả") ? null : selectedField;
+
+            Executors.newSingleThreadExecutor().execute(() -> {
+                List<Internship> resultInternships = dbHelper.getAllInternships(field, sortByDate);
+                runOnUiThread(() -> {
+                    try {
+                        internshipList.clear();
+                        if (resultInternships != null && !resultInternships.isEmpty()) {
+                            internshipList.addAll(resultInternships);
+                        } else {
+                            Toast.makeText(this, "Không có thực tập nào.", Toast.LENGTH_SHORT).show();
+                        }
+                        internshipAdapter.notifyDataSetChanged();
+                    } catch (Exception e) {
+                        Log.e(TAG, "Lỗi khi tải danh sách thực tập: ", e);
+                        Toast.makeText(this, "Lỗi tải danh sách thực tập: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
+            });
+        } catch (Exception e) {
+            Log.e(TAG, "Lỗi khi lọc thực tập: ", e);
+            Toast.makeText(this, "Lỗi lọc thực tập: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -123,50 +156,6 @@ public class InternshipListingsActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Xóa stack activity
         startActivity(intent);
         finish();
-    }
-
-    private void setupSpinner() {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            List<String> allFields = dbHelper.getAllFields();
-            List<String> fields = new ArrayList<>();
-            fields.add("Tất cả");
-            fields.addAll(allFields);
-
-            runOnUiThread(() -> {
-                ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, fields);
-                spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spinnerFilter.setAdapter(spinnerAdapter);
-            });
-        });
-    }
-
-    private void filterInternships() {
-        try {
-            String selectedField = spinnerFilter.getSelectedItem() != null ? spinnerFilter.getSelectedItem().toString() : "Tất cả";
-            boolean sortByDate = checkBoxSortByDate.isChecked();
-            String field = selectedField.equals("Tất cả") ? null : selectedField;
-
-            Executors.newSingleThreadExecutor().execute(() -> {
-                List<Internship> resultInternships = dbHelper.getAllInternships(field, sortByDate);
-                runOnUiThread(() -> {
-                    try {
-                        internshipList.clear();
-                        if (resultInternships != null && !resultInternships.isEmpty()) {
-                            internshipList.addAll(resultInternships);
-                        } else {
-                            Toast.makeText(this, "Không có thực tập nào.", Toast.LENGTH_SHORT).show();
-                        }
-                        internshipAdapter.notifyDataSetChanged();
-                    } catch (Exception e) {
-                        Log.e(TAG, "Lỗi tải thực tập: ", e);
-                        Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                });
-            });
-        } catch (Exception e) {
-            Log.e(TAG, "Lỗi lọc thực tập: ", e);
-            Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
     }
 
     @Override

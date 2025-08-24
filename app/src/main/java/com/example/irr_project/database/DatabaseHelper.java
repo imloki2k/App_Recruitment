@@ -729,21 +729,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int result = db.update(TABLE_USERS, values, whereClause, whereArgs);
         return result > 0;
     }
-    public List<String> getAllFields() {
-        List<String> fields = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT DISTINCT " + COL_FIELD + " FROM " + TABLE_INTERNSHIPS + " WHERE " + COL_FIELD + " IS NOT NULL ORDER BY " + COL_FIELD;
-        Cursor cursor = db.rawQuery(query, null);
-
-        while (cursor.moveToNext()) {
-            String field = cursor.getString(0);
-            if (field != null && !field.trim().isEmpty()) {
-                fields.add(field);
-            }
-        }
-        cursor.close();
-        return fields;
-    }
 
     public static class Student {
         private int id;
