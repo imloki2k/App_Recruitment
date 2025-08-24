@@ -26,7 +26,10 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-
+        // Set custom title
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Đăng ký tài khoản"); // or "Register" for RegisterActivity
+        }
         // Initialize UI components
         editTextEmail = findViewById(R.id.editTextEmail);
         editTextPassword = findViewById(R.id.editTextPassword);
