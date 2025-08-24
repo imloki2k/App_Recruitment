@@ -1,14 +1,14 @@
 {
   "project_info": {
-    "project_number": "741579691189",
-    "firebase_url": "https://irr-project-16159-default-rtdb.firebaseio.com",
-    "project_id": "irr-project-16159",
-    "storage_bucket": "irr-project-16159.firebasestorage.app"
+    "project_number": "506859991638",
+    "firebase_url": "https://apprecruitment-786e7-default-rtdb.firebaseio.com",
+    "project_id": "apprecruitment-786e7",
+    "storage_bucket": "apprecruitment-786e7.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:741579691189:android:ed04879551267279bb9afc",
+        "mobilesdk_app_id": "1:506859991638:android:ff9dde98addb826b8b41f7",
         "android_client_info": {
           "package_name": "com.example.irr_project"
         }
@@ -16,7 +16,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAFsXfKGyEId-vT63-D8dq2doBylatMTfE"
+          "current_key": "AIzaSyDI8A-O8___LEzrB1VK094cu11_fxgdl2E"
         }
       ],
       "services": {
