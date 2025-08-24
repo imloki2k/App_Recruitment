@@ -4,110 +4,96 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
+    app:cardCornerRadius="8dp"
     app:cardElevation="4dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="12dp">
 
-        <!-- Tiêu đề công việc -->
         <TextView
             android:id="@+id/internship_title_textview"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="#111827"
+            android:textColor="#212121"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Tên công ty -->
         <TextView
             android:id="@+id/company_name_textview"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textSize="14sp"
-            android:fontFamily="sans-serif"
-            android:textColor="#6B7280"
-            android:layout_marginTop="4dp"
+            android:textColor="#757575"
             app:layout_constraintTop_toBottomOf="@id/internship_title_textview"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="4dp" />
 
-        <!-- Trạng thái -->
         <TextView
             android:id="@+id/status_textview"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textSize="14sp"
-            android:fontFamily="sans-serif"
-            android:textColor="#374151"
-            android:layout_marginTop="4dp"
+            android:textColor="#757575"
             app:layout_constraintTop_toBottomOf="@id/company_name_textview"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/withdraw_button" />
+            app:layout_constraintEnd_toStartOf="@id/withdraw_button"
+            android:layout_marginTop="4dp" />
 
-        <!-- Student ID -->
         <TextView
             android:id="@+id/tvStudentId"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Student ID:"
-            android:textSize="13sp"
-            android:fontFamily="sans-serif"
-            android:textColor="#6B7280"
-            android:layout_marginTop="4dp"
+            android:text="Student ID: "
+            android:textSize="14sp"
+            android:textColor="#757575"
             app:layout_constraintTop_toBottomOf="@id/status_textview"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="4dp" />
 
-        <!-- Nút rút đơn -->
         <Button
             android:id="@+id/withdraw_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Rút đơn"
             android:textSize="12sp"
-            android:fontFamily="sans-serif-medium"
-            android:backgroundTint="#DC2626"
+            android:backgroundTint="#F44336"
             android:textColor="#FFFFFF"
             android:padding="8dp"
             android:visibility="gone"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="8dp"
             app:layout_constraintTop_toBottomOf="@id/company_name_textview"
-            app:layout_constraintEnd_toStartOf="@id/schedule_interview_button" />
+            app:layout_constraintEnd_toStartOf="@id/schedule_interview_button"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp" />
 
-        <!-- Nút lên lịch phỏng vấn -->
         <Button
             android:id="@+id/schedule_interview_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Lên lịch phỏng vấn"
             android:textSize="12sp"
-            android:fontFamily="sans-serif-medium"
-            android:backgroundTint="#1D4ED8"
+            android:backgroundTint="#2196F3"
             android:textColor="#FFFFFF"
             android:padding="8dp"
             android:visibility="gone"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="8dp"
             app:layout_constraintTop_toBottomOf="@id/company_name_textview"
-            app:layout_constraintEnd_toStartOf="@id/status_spinner" />
+            app:layout_constraintEnd_toStartOf="@id/status_spinner"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp" />
 
-        <!-- Spinner trạng thái -->
         <Spinner
             android:id="@+id/status_spinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            android:layout_marginTop="4dp"
             app:layout_constraintTop_toBottomOf="@id/company_name_textview"
-            app:layout_constraintEnd_toEndOf="parent" />
-
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="4dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

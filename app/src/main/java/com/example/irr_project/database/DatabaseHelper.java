@@ -709,6 +709,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return students;
     }
+    public boolean isEmailRegistered(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COL_USER_ID};
+        String selection = COL_EMAIL + "=?";
+        String[] selectionArgs = {email};
+        Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null);
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        return exists;
+    }
+
+    public boolean updatePassword(String email, String newPassword) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_PASSWORD, newPassword);
+        String whereClause = COL_EMAIL + "=?";
+        String[] whereArgs = {email};
+        int result = db.update(TABLE_USERS, values, whereClause, whereArgs);
+        return result > 0;
+    }
 
     public static class Student {
         private int id;

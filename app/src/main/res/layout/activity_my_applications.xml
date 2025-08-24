@@ -4,33 +4,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="#FFFFFF">
+    android:background="#F5F5F5">
 
-    <!-- Text thông báo khi không có ứng tuyển -->
     <TextView
         android:id="@+id/tvNoApplications"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Không có đơn ứng tuyển nào."
         android:textSize="16sp"
-        android:fontFamily="sans-serif-medium"
-        android:textColor="#6B7280"
-        android:gravity="center"
+        android:textColor="#757575"
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Danh sách các ứng tuyển -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewMyApplications"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

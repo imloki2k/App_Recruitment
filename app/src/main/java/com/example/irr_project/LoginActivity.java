@@ -151,4 +151,13 @@ public class LoginActivity extends AppCompatActivity {
             return -1;
         }
     }
+    public void goToForgotPassword(View view) {
+        try {
+            Intent intent = new Intent(this, ForgotPasswordActivity.class);
+            startActivity(intent);
+        } catch (Exception e) {
+            Log.e(TAG, "Error navigating to ForgotPasswordActivity: ", e);
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
 }
